@@ -107,15 +107,15 @@ function myscan(&$arr, $dir){
 // if(!$q){
 	//создаем таблицу
 	$query = mysql_query("create table if not exists `".MUSIC_TABLE."` (
-																`id` int(11) not null auto_increment,
-																`artist` varchar(100) COLLATE utf8_general_ci NOT NULL,
-																`albums` varchar(100) COLLATE utf8_general_ci NOT NULL,
-																`tracks` varchar(100) COLLATE utf8_general_ci NOT NULL,
-																`filename` varchar(300) COLLATE utf8_general_ci NOT NULL,
-																`cover` varchar(300) COLLATE utf8_general_ci,
-																`genre` varchar(30) COLLATE utf8_general_ci,
-																`year` varchar(30) COLLATE utf8_general_ci,
-																primary key(id))") or die(mysql_error());
+							`id` int(11) not null auto_increment,
+							`artist` varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`albums` varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`tracks` varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`filename` varchar(300) COLLATE utf8_general_ci NOT NULL,
+							`cover` varchar(300) COLLATE utf8_general_ci,
+							`genre` varchar(30) COLLATE utf8_general_ci,
+							`year` varchar(30) COLLATE utf8_general_ci,
+							primary key(id))") or die(mysql_error());
 	$query = mysql_query("create table if not exists `playlist` (
 							`id` int(11) not null auto_increment,
 							`name` varchar(100) COLLATE utf8_general_ci NOT NULL,

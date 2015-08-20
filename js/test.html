@@ -1,0 +1,24 @@
+<html>
+<head>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="myJSplayer.js"></script>
+<script>
+	$(document).ready(function(){
+		console.log("Ready!");
+		var player = new myJSplayer("#pl");
+		player.init();
+
+		$("#load_file").click(function(){
+			player.playTrack("file.mp3");
+		});
+		$("#play").click(function(){
+			player.playPause();
+		})
+	})
+</script>
+</head>
+<body>
+ <audio id="pl" controls></audio>
+ <button id="load_file">LoadFile</button>
+ <button id="play">Play</button>
+</body>

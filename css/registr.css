@@ -1,0 +1,28 @@
+body{
+      text-align: center;
+}
+.cont{
+    display: inline-block;
+    text-align: left;
+    margin-left: -100px;
+    margin-top: -10px;
+    padding: 40px;
+}
+.cont input[type=text],input[type=password]{
+    height: 25px;
+    width: 270px;
+}
+form{
+    display: block;
+/*	margin-top: -230px;
+    margin-left: -90px;*/
+}
+.cont2{
+    float: top;
+    margin: 0 auto;
+    margin-left: -100px;
+}
+#error_login{
+    display: none;
+}
+

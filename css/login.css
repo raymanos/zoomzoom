@@ -1,0 +1,15 @@
+#wrapper{
+    width: 200px;
+    height: 200px;
+    /*border: 2px solid blue;*/
+    margin: 0 auto;
+    margin-top: 200px;
+}
+#error_login{
+	width: 430px;
+	height: 25px;
+	display: none;
+	margin: 0 auto;
+	/*margin-left: -40px;*/
+	margin-top: 40px;
+}

@@ -1,0 +1,304 @@
+body{
+	/*background-color: #3F5589;*/
+	background-image: url(../img/denim-daisies.gif);
+	/*background-position: fixed;*/
+	/*width: 60%;*/
+	/*text-align: center;  выравниваем все содержимое body по центру */
+	/*background: #fff;*/
+}
+#wrapper{
+	/*background-color: red;*/
+	width: 960px; /* ширина основного блока */
+	height: 100%; /* высота для наглядности */
+	margin: 0 auto; /* задаем отступ слева и справа auto чтобы сработало выравнивание по центру */
+
+
+}
+.mystyle{
+	background-color: white;
+	border-radius: 8px;
+	/*border: 2px solid #6678b1;*/
+	margin: 3px;
+	-webkit-box-shadow: 0px 0px 30px 0px rgba(50, 50, 50, 0.86);
+	-moz-box-shadow:    0px 0px 30px 0px rgba(50, 50, 50, 0.86);
+	box-shadow:         0px 0px 30px 0px rgba(50, 50, 50, 0.86);
+}
+#panel-left{
+	width: 200px; 
+	/*width: 10%;*/
+	height: 400px;
+	/*border: 2px dotted black;*/
+	float: left;
+	display: none;
+}
+#content{
+	/*width: 550px;*/
+	/*width: 20%;*/
+	float: left;
+}
+#audio-player{
+	width: 99%;
+	height: 80px;
+	margin-bottom: 7px;
+}
+#up-div{
+	height: 45px;
+	width: 100%;
+}
+#down-div{
+	height: 45px;
+	width: 100%;
+}
+#user_info{
+	/*left: 100px;*/
+	width: 110px;
+	height: 25px;
+	float: left;
+	margin-left: 230px;
+}
+#userpic{
+	height: 15px;
+	width: 15px;
+}
+#exit{
+	cursor: pointer;
+}
+#audio-controls{
+	float: left;
+	margin-top: 2px;
+	margin-left: 5px;
+}
+#player-play{
+	cursor: pointer;
+}
+#player-play:hover{
+	-webkit-box-shadow: 2px 2px 30px 0px rgba(42, 49, 240, 1);
+	-moz-box-shadow:    2px 2px 30px 0px rgba(42, 49, 240, 1);
+	box-shadow:         2px 2px 30px 0px rgba(42, 49, 240, 1);
+}
+#player-next{
+	cursor: pointer;
+}
+#player-next:hover{
+	-webkit-box-shadow: 2px 2px 30px 0px rgba(42, 49, 240, 1);
+	-moz-box-shadow:    2px 2px 30px 0px rgba(42, 49, 240, 1);
+	box-shadow:         2px 2px 30px 0px rgba(42, 49, 240, 1);
+}
+#player-prev{
+	cursor: pointer;
+}
+#player-prev:hover{
+	-webkit-box-shadow: 2px 2px 30px 0px rgba(42, 49, 240, 1);
+	-moz-box-shadow:    2px 2px 30px 0px rgba(42, 49, 240, 1);
+	box-shadow:         2px 2px 30px 0px rgba(42, 49, 240, 1);
+}
+#audio-info{
+	float: left;
+	overflow: hidden;
+	width: 200px;
+	height: 35px;
+	margin-top: 10px;
+	margin-left: 5px;
+} 
+#volume-slider{
+	width: 150px;
+	height: 10px;
+	/*left: 50px;*/
+	float: left;
+	margin-top: 18px;
+}
+#audio-numbers{
+	float: left;
+	margin-left: 5px;
+}
+#audio-slider{
+	width: 300px;
+	height: 10px;
+	float: left;
+	left: 30px;
+	margin-top: 6px;
+	right: 100px;
+}
+#buttons-div{
+	width: 100%;
+	height: 30px;
+	float: left;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+.mybutton{
+	cursor: pointer;
+	float: left;
+}
+.mybutton:hover{
+	-webkit-box-shadow: 2px 2px 30px 0px rgba(42, 49, 240, 1);
+	-moz-box-shadow:    2px 2px 30px 0px rgba(42, 49, 240, 1);
+	box-shadow:         2px 2px 30px 0px rgba(42, 49, 240, 1);
+}
+#button_love{
+	height: 32px;
+	width: 32px;
+}
+#panel-right{
+	width: 210px;
+	/*width: 25%;*/
+	height: 400px;
+	float: left;
+}
+#cover{
+	width: 200px;
+	height: 188px;
+	margin: 4px;
+	border-radius: 8px;
+}
+#playlist-div{
+	width: 142px;
+	height: 300px;
+	float: left;
+}
+span#playlists-button{
+	width: 135px;
+	height: 25px;
+	font-size: 16px;
+	left: 10px;
+	top: 1px;
+}
+
+.shadowtext{
+	 text-shadow: 1px 1px 2px black, 0 0 1em black; /*#7093D8*/
+    color: white; /* Белый цвет текста */
+    font-size: 1em; /* Размер надписи */
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{
+/*color: #555;
+margin-left: -5px;
+border-radius: 50px;*/
+
+}
+.ui-dialog-content .ui-dialog-buttonpane{
+	/*font-size: 10px;*/
+}
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+#player {
+	margin-bottom: 8px;
+}
+.mp3{
+	background-color: #3366FF;
+	margin: 5px;
+	width: 300px;
+
+}
+.mp3a{
+	color: #669;
+	text-decoration: none;
+}
+table {
+	border-collapse: separate;
+	min-width: 543px;
+}
+/*Делаем таблицу со скроллингом*/
+.table-scroll tbody{
+	display: block;
+    height: 200px;
+    width: 730px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+.table-scroll tr {
+    display: table;
+    width: 730px;
+    table-layout: fixed;
+}
+td:nth-child(1){
+	width: 10%;
+}
+td:nth-child(2){
+	width: 50%;
+}
+td:nth-child(3){
+	width: 30%;
+}
+td:nth-child(4){
+	width: 10%;
+}
+/*Раскрасим таблицу-плейлист*/
+tr:nth-child(2n){
+	background-color: #D8CCFF;
+}
+
+td {
+	border-bottom: 1px solid #ccc;
+	color: #669;
+}
+tr:hover {
+	background: #e8edff;
+}
+audio{
+	width: 550px;
+	background-color: #C2D1FF;
+	/*float: left;*/
+}
+.mp3-click{
+	cursor: pointer;
+	color: #669;
+}
+.minus-mp3{
+	cursor: pointer;
+}
+.minus-mp3:hover{
+	-webkit-box-shadow: 2px 2px 30px 0px rgba(42, 49, 240, 1);
+	-moz-box-shadow:    2px 2px 30px 0px rgba(42, 49, 240, 1);
+	box-shadow:         2px 2px 30px 0px rgba(42, 49, 240, 1);
+}
+.png-play {
+	background-image: url(../img/play.png);
+	background-repeat: no-repeat, repeat-x;
+	/*float: right;*/
+
+}
+.png-pause {
+	background-image: url(../img/pause.png);
+	background-repeat: no-repeat, repeat-x;
+
+}
+.genreClass{
+	float: left;
+}
+.artistClass {
+	float: left;
+}
+.albumClass {
+	float: left;
+}
+.tracksClass {
+	float: left;
+}
+#tracks-div{
+	clear: left;
+	width: 100%;
+}
+.genre-button{
+	float: left;
+}
+#artist-div {
+	margin-left: -25px;
+	margin-top: -15px;
+	width: 730px;
+}
+#tabs{
+	width: 730px;
+	height: 360px;
+}
+a.ui-tabs-anchor{
+	height: 20px;
+	padding: 5px 5px 5px 5px;
+}
+.small-image{
+	height: 20px;
+	width: 15px;
+	cursor: pointer;
+	/*margin-left: -3px;*/
+}

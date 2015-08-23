@@ -229,7 +229,7 @@ pl.nextTrack = function(){
 pl.prevTrack = function(){
 	audioPlayer.prevTrack();
 	$("#pic-play").remove();
-	$("#a[num|='"+currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
+	$("#a[num|='"+audioPlayer.currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
 	pl.updateInfo();
 	done = false;
  }
@@ -686,6 +686,7 @@ $("#audio")[0].onended = function(){
 				currentGenre = $(this).attr("genre");
 				var id_track = $(this).attr("id_track");
 				// операции с плейлистом
+				console.log(id_track, filename,title);
 				audioPlayer.addToPlaylist(id_track,filename,title);
 				// currentPlaylist.push({
 				//  	"id_track":id_track,

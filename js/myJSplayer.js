@@ -111,9 +111,12 @@ function myJSplayer(audio_id){
 		if(this.currentTrack != 0){
 			this.currentTrack--;
 		}
-		this.currentFilename = this.currentPlaylist[this.currentTrack].Filename;
-		this.currentTitle = this.currentPlaylist[this.currentTrack].Title;
-		this.audioPlayer.src = this.currentFilename;
+		else
+			currentTrack = 0;
+		this.currentFilename = this.playlist[this.currentTrack].filename;
+		this.currentID       = this.playlist[this.currentTrack].id;
+		this.currentTitle    = this.playlist[this.currentTrack].title;
+		this.audioPlayer.src = this.playlist[this.currentTrack].filename;
 		this.audioPlayer.play();
 	 }
 	this.nextTrack = function(){
@@ -121,9 +124,9 @@ function myJSplayer(audio_id){
 		if(this.currentTrack >= this.count){
 			this.currentTrack = 0;
 		}
-		this.currentFilename = this.playlist[currentTrack].filename;
-		this.currentID = this.playlist[curentTrack].id;
-		this.currentTitle = this.playlist[this.currentTrack].title;
+		this.currentFilename = this.playlist[this.currentTrack].filename;
+		this.currentID       = this.playlist[this.currentTrack].id;
+		this.currentTitle    = this.playlist[this.currentTrack].title;
 		this.audioPlayer.src = this.playlist[this.currentTrack].filename;
 		this.audioPlayer.play();
 	 }

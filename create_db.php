@@ -1,11 +1,11 @@
 <?php
 header('Content-Type: text/html;charset=utf-8');
-define("MUSIC_DIR", "/media/Eva/Music");
+define("MUSIC_DIR", "music");
 // define("MUSIC_DIR", "/var/www/music");
 // define("MUSIC_TABLE", "music");
-define("MUSIC_TABLE", "music_");
+define("MUSIC_TABLE", "music");
 // define("DIR_CUT_COUNT",8);
-define("DIR_CUT_COUNT",8);
+define("DIR_CUT_COUNT",0);
 
 include "connect_db.php";
 		ini_set('error_reporting', E_ALL);
@@ -65,7 +65,7 @@ function myscan(&$arr, $dir){
 		else{ 
 			if (strpos($file, ".mp3")!==false){ 
 				// echo "$filename<br>";
-
+				echo "Filename: ".$file;
 				$tags = mp3tags($file);
 				print_r($tags);
 				//$filename = $file;

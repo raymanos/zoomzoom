@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="css/listbox.css" media="screen">
  	<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 	<link rel="stylesheet" href="css/style.css" media="screen">
-	<link rel="shortcut" href="icon.png">
+	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>
 <body>
 <div id="wrapper">

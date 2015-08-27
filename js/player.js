@@ -229,7 +229,7 @@ pl.nextTrack = function(){
 pl.prevTrack = function(){
 	audioPlayer.prevTrack();
 	$("#pic-play").remove();
-	$("#a[num|='"+audioPlayer.currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
+	$("a[num|='"+audioPlayer.currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
 	pl.updateInfo();
 	done = false;
  }

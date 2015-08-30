@@ -44,13 +44,15 @@ function mp3tags($filename){
 	rewind($f);
 	fseek($f, -128, SEEK_END);
 	$tmp = fread($f,128);
-	if ($tmp[125] == Chr(0) and $tmp[126] != Chr(0)) {
-	// ID3 v1.1
-	$format = 'a3TAG/a30NAME/a30ARTISTS/a30ALBUM/a4YEAR/a28COMMENT/x1/C1TRACK/C1GENRENO';
+	if ($tmp[125] == Chr(0) and $tmp[126] != Chr(0)) 
+	{
+		// ID3 v1.1
+		$format = 'a3TAG/a30NAME/a30ARTISTS/a30ALBUM/a4YEAR/a28COMMENT/x1/C1TRACK/C1GENRENO';
 	} 
-	else {
-	// ID3 v1
-	$format = 'a3TAG/a30NAME/a30ARTISTS/a30ALBUM/a4YEAR/a30COMMENT/C1GENRENO';
+	else 
+	{
+		// ID3 v1
+		$format = 'a3TAG/a30NAME/a30ARTISTS/a30ALBUM/a4YEAR/a30COMMENT/C1GENRENO';
 	} 
 	return unpack($format, $tmp);
  } 
@@ -58,55 +60,52 @@ function mp3tags($filename){
 function myscan(&$arr, $dir){ 
 	$cont=glob($dir."/*"); 
 	// echo "myscan";
-	foreach($cont as $file){ 
+	foreach($cont as $file)
+	{ 
 		if (is_dir($file)){ 
-			myscan($arr, $file); 
+			if ($file != '.' && $file != '..')
+			{
+				myscan($arr, $file); 
+			}
 		} 
-		else{ 
-			if (strpos($file, ".mp3")!==false){ 
-				// echo "$filename<br>";
-				echo "Filename: ".$file;
+		else
+		{ 
+			if (strpos($file, ".mp3") != false)
+			{ 
 				$tags = mp3tags($file);
-				print_r($tags);
-				//$filename = $file;
-				$artist = $tags["ARTISTS"];
-				//$album = $tags["ALBUM"];
-				//$tracks = $tags["NAME"];
-				// $filename = iconv("windows-1251","UTF-8",$file);
+
+				// print_r($tags);
+
+				$artist   = $tags["ARTISTS"];
 				$filename = substr($file, DIR_CUT_COUNT);
 				$filename = iconv("windows-1251","UTF-8",$filename);
-				$artist = iconv("windows-1251","UTF-8",$tags["ARTISTS"]);
-				// $artist = $tags["ARTISTS"];
-				//$artist = iconv("windows-1251","UTF-8",$artist);
-				$album = iconv("windows-1251","UTF-8",$tags["ALBUM"]);
-				$tracks = iconv("windows-1251","UTF-8",$tags["NAME"]);
-				// $genre = iconv("windows-1251","UTF-8",$tags["GENRENO"]);
-				$genre = getGenre($tags["GENRENO"]);
-				$year = $tags["YEAR"];
+				$artist   = iconv("windows-1251","UTF-8",$tags["ARTISTS"]);
+				$album    = iconv("windows-1251","UTF-8",$tags["ALBUM"]);
+				$title   = iconv("windows-1251","UTF-8",$tags["NAME"]);
+				$genre    = getGenre($tags["GENRENO"]);
+				$year     = $tags["YEAR"];
 
+				$cover = substr(dirname($file)."/cover.jpg",DIR_CUT_COUNT);
 				$cover = substr(dirname(iconv("windows-1251","UTF-8",$file))."/cover.jpg",DIR_CUT_COUNT);
 
 				$filename = mysql_real_escape_string($filename);
 				$artist = mysql_real_escape_string($artist);
 				$album = mysql_real_escape_string($album);
-				$tracks = mysql_real_escape_string($tracks);
+				$title = mysql_real_escape_string($title);
 				$cover = mysql_real_escape_string($cover);
 				//записываем в базу данных
 				$sql = "insert into ".MUSIC_TABLE." (artist,albums,tracks,filename,cover,genre,year) values 
-				('$artist','$album','$tracks','$filename','$cover','$genre','$year')";
+				('$artist','$album','$title','$filename','$cover','$genre','$year')";
 				$q = mysql_query($sql) or die(mysql_error());
-				echo "$filename<br>";
+				echo "$artist|$album|$title|$genre|$year<br>$filename";
 				echo "<hr><br>";
 			} 
 		} 
 	}	 
- } 
- echo "dd";
-//смотрим есть ли таблица, если нет создаем и сканируем
-// $q = mysql_query("select id from music_") or die("1ddd".mysql_error());
-// if(!$q){
-	//создаем таблицу
-	$query = mysql_query("create table if not exists `".MUSIC_TABLE."` (
+} 
+
+//создаем таблицу
+$query = mysql_query("create table if not exists `".MUSIC_TABLE."` (
 							`id` int(11) not null auto_increment,
 							`artist` varchar(100) COLLATE utf8_general_ci NOT NULL,
 							`albums` varchar(100) COLLATE utf8_general_ci NOT NULL,
@@ -116,7 +115,7 @@ function myscan(&$arr, $dir){
 							`genre` varchar(30) COLLATE utf8_general_ci,
 							`year` varchar(30) COLLATE utf8_general_ci,
 							primary key(id))") or die(mysql_error());
-	$query = mysql_query("create table if not exists `playlist` (
+$query = mysql_query("create table if not exists `playlist` (
 							`id` int(11) not null auto_increment,
 							`name` varchar(100) COLLATE utf8_general_ci NOT NULL,
 							`user` varchar(100) COLLATE utf8_general_ci NOT NULL,
@@ -125,17 +124,10 @@ function myscan(&$arr, $dir){
 							`filename` varchar(300) COLLATE utf8_general_ci NOT NULL,
 							`cover` varchar(300) COLLATE utf8_general_ci NOT NULL,
 							primary key(id))") or die(mysql_error());
-	echo "Query: $query";	
-	//потом сканируем
-	
-	$arr=array(); 
-	// myscan($arr, "music"); 
-	myscan($arr, MUSIC_DIR); 
-	echo "END";
-// }
-// else 
-// {
-	// echo "net table";
-// }
-
+echo "Query: $query";	
+//потом сканируем
+$arr=array(); 
+// myscan($arr, "music"); 
+myscan($arr, MUSIC_DIR); 
+echo "END";
 ?>

@@ -55,6 +55,12 @@ function addToTable($_artist, $_album, $_title, $_genre, $_year, $_filename, $_c
 			('$_artist','$_album','$_title','$_filename','$_cover','$_genre','$_year')";
 	$q = mysql_query($sql) or die(mysql_error());
 }
+function setInfoToTable($_ctracks, $_stracks)
+{
+	$sql = "insert into `music_information` (count_tracks,size_tracks,lastScan) values 
+			('$_ctracks','$_stracks', now())";
+	$q = mysql_query($sql) or die(mysql_error());
+}
 //создаем таблицу
 $query = mysql_query("create table if not exists `music` (
 							`id` int(11) not null auto_increment,
@@ -70,12 +76,13 @@ $query = mysql_query("create table if not exists `music_information` (
 							`id` int(11) not null auto_increment,
 							`size_tracks`  varchar(30)  COLLATE utf8_general_ci NOT NULL,
 							`count_tracks` varchar(300) COLLATE utf8_general_ci NOT NULL,
+							`lastScan` datetime,
 							primary key(id))") or die(mysql_error());
 $dir_iterator = new RecursiveDirectoryIterator("music");
-$iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
+$iterator     = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
 // could use CHILD_FIRST if you so wish
 $count_tracks = $size_tracks = 0;
-echo "----";
+
 foreach ($iterator as $file) {
 	if( $file != '.' && $file != '..')
 		if( $file->isFile() )
@@ -102,7 +109,6 @@ foreach ($iterator as $file) {
 				$title    = mysql_real_escape_string($title);
 				$cover    = mysql_real_escape_string($cover);
 
-
 				echo "$artist|$album|$title|$genre|$year<br> $filename";
 				echo "<hr><br>";
 
@@ -113,5 +119,6 @@ foreach ($iterator as $file) {
 
 }
 $size_tracks_mb = round($size_tracks / 1000000000,2);
+setInfoToTable($count_tracks, $size_tracks_mb);
 echo "size_tracks: $size_tracks_mb<br>count tracks: $count_tracks";
 ?>

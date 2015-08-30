@@ -187,15 +187,24 @@ pl.loadPlaylist = function(name){
 				var data_json = JSON.parse(data);
 				// l(data_json);
 				// операции с плейлистом
-				currentPlaylist = [];
+				//currentPlaylist = [];
 				num = 1;
 				//убираем лишнее из таблицы
 				$("#track-table").html("<table id='track-table'></table>");
 				for(var i=0; i < data_json.length; i++){
-					currentPlaylist.push({"Artist":data_json[i].artist,"Title":data_json[i].title,"Filename":data_json[i].filename,"Cover":data_json[i].cover});
-					currentCount++;
-					$("#track-table").append($("<tr><td>"+num+".</td><td><a href='#' num='"+(num-1)+"' artist='"+data_json[i].artist
-						+"' cover='"+data_json[i].cover+"' filename='"+data_json[i].filename+"' class='mp3a'>"+data_json[i].title+"</a></td></tr>"));
+					audioPlayer.addToPlaylist(data_json[i].id,data_json[i].filename,data_json[i].title);
+					//Добавляем в таблицу
+				 	addtoTable(data_json[i].id,
+				 			   data_json[i].artist,
+				 			   data_json[i].title,
+				 			   data_json[i].filename,
+				 			   data_json[i].cover,
+				 			   num,
+				 			   data_json[i].genre); 
+					//currentPlaylist.push({"Artist":data_json[i].artist,"Title":data_json[i].title,"Filename":data_json[i].filename,"Cover":data_json[i].cover});
+					//currentCount++;
+					//$("#track-table").append($("<tr><td>"+num+".</td><td><a href='#' num='"+(num-1)+"' artist='"+data_json[i].artist
+					//	+"' cover='"+data_json[i].cover+"' filename='"+data_json[i].filename+"' class='mp3a'>"+data_json[i].title+"</a></td></tr>"));
 					num++; 
 				}
 			}
@@ -221,6 +230,7 @@ pl.playPause = function(elem){
  }
 pl.nextTrack = function(){
 	audioPlayer.nextTrack();
+	l(audioPlayer.playlist)
 	$("#pic-play").remove();
 	$("a[num|='"+audioPlayer.currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
 	pl.updateInfo();
@@ -457,6 +467,7 @@ $("#audio")[0].onended = function(){
 					for(var i=0; i < data_json.length; i++){
 						audioPlayer.playlist.push({"id":data_json[i].id,"title":data_json[i].title,"filename":data_json[i].filename,"cover":data_json[i].cover});
 						audioPlayer.currentCount++;
+						audioPlayer.addToPlaylist(data_json[i].id,data_json[i].filename,data_json[i].title);
 						addtoTable(data_json[i].id,
 								   data_json[i].artist,
 								   data_json[i].title,
@@ -686,24 +697,10 @@ $("#audio")[0].onended = function(){
 				currentGenre = $(this).attr("genre");
 				var id_track = $(this).attr("id_track");
 				// операции с плейлистом
-				console.log(id_track, filename,title);
 				audioPlayer.addToPlaylist(id_track,filename,title);
-				// currentPlaylist.push({
-				//  	"id_track":id_track,
-				//  	"Artist":currentArtist,
-				//  	"Title":title,
-				//  	"Filename":filename,
-				//  	"Cover":cover,
-				//  	"currentCount":currentCount});
-				 // currentCount++;
-				 // l(currentPlaylist);
-				 //alert("Track: "+track+" Filename: "+filename);
-				 //Добавляем в таблицу
-				 addtoTable(id_track,audioPlayer.currentArtist,title,filename,cover,num,currentGenre);
-				 // l(audioPlayer.playlist);
-				 // getStars()
-				 //$("#track-table").append($("<tr><td>"+num+".</td><td><a href='#' num='"+(num-1)+"' artist='"+currentArtist+"' cover='"+cover+"' filename='"+filename+"' class='mp3a'>"+title+"</a></td></tr>"));
-				 num++; 
+				//Добавляем в таблицу
+				addtoTable(id_track,audioPlayer.currentArtist,title,filename,cover,num,currentGenre);
+				num++; 
 			 });
 			 //Клик по трэку, ИГРАЕМ!!
 			$(document).on("click", ".mp3a",                   function(){

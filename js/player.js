@@ -263,15 +263,15 @@ $("#audio")[0].ontimeupdate = function(){
 	if ( (currentTime >= roundtime ) && (done == false) ){
 		var user = $.trim($("#user_info").text());
 		done = true;
-		pl.updateMusicStatictic(info.id_track,user,info.genre);
-		$.ajax({
-			type:"POST",
-			url:"query.php",
-			data:"action=inc_count&user="+user+"&music_id="+info.id_track,
-			success: function(data){
-				l(data);
-			}
-		})
+		// pl.updateMusicStatictic(info.id_track,user,info.genre);
+		// $.ajax({
+		// 	type:"POST",
+		// 	url:"query.php",
+		// 	data:"action=inc_count&user="+user+"&music_id="+info.id_track,
+		// 	success: function(data){
+		// 		l(data);
+		// 	}
+		// })
 	}
 	$("#audio-slider").slider("option","max",duration);
 	$("#audio-slider").slider("value",currentTime);
@@ -687,6 +687,47 @@ $("#audio")[0].onended = function(){
 				}
 				})
 			 });
+			// Двойной клик, выводит все треки альбома в плейлист
+			$(document).on("dblclick", ".albumClass .lbjs-item", function(){
+				currentAlbum = $(this).html();
+				data = "&action=get_tracks&album="+$(this).html();
+				$.ajax({
+					type: 'POST',
+					url: 'query.php',
+					data: data,
+				success: function(data) {
+					if (data != "false"){
+						var data_json = JSON.parse(data);
+						$(".tracksClass .lbjs-list").html("");
+						for(var i=0; i < data_json.length; i++)
+						{
+							// Добавляем треки в листБокс для треков
+							$(".tracksClass .lbjs-list").append( $("<div class='lbjs-item' genre='"+data_json[i].Genre
+								+"' id_track='"+data_json[i].id_track+"' cover='"+data_json[i].Cover+"'  filename='"
+								+data_json[i].Filename+"'>"+data_json[i].Title+"</div>") );
+							// Добавляем треки в плейлист
+							l(data_json[i].Artist);
+							// операции с плейлистом
+							
+							audioPlayer.addToPlaylist(data_json[i].id_track,data_json[i].Filename,data_json[i].Title);
+							//Добавляем в таблицу
+							addtoTable(data_json[i].id_track,
+									   data_json[i].Artist,
+									   data_json[i].Title,
+									   data_json[i].Filename,
+									   data_json[i].Cover,
+									   num,
+									   data_json[i].Genre);
+							num++;
+						}
+					}
+					else {
+						alert("FALSE!");
+					}
+				}
+				})
+
+			})
 				//Клик по треку в листбоксе->добавляем в таблицу ниже(плейлист)
 			$(document).on("click", ".tracksClass .lbjs-item", function() {
 				//Получаем трек, по которому кликнули

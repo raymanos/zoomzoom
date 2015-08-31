@@ -241,7 +241,7 @@ if($_POST["action"] == "save_pls"){
 if($_POST["action"] == "get_tracks"){
 	$data = "[";
 	$album = $_POST["album"];
-	$sql = "select distinct id,tracks,filename,cover,genre from music where albums = '$album'";
+	$sql = "select distinct id,tracks,artist,filename,cover,genre from music where albums = '$album'";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
@@ -262,7 +262,7 @@ if($_POST["action"] == "get_tracks"){
 			$cover = preg_replace("/[+]/","%20",$cover);
 			$cover = preg_replace("/%2F/","/",$cover);
 
-			$data .= '{"Title":"'.$row["tracks"].'","Filename":"'.$URL.'","Cover":"'.$cover.'","id_track":"'.$row["id"].'","Genre":"'.$row["genre"].'"},';
+			$data .= '{"Title":"'.$row["tracks"].'","Artist":"'.$row["artist"].'","Filename":"'.$URL.'","Cover":"'.$cover.'","id_track":"'.$row["id"].'","Genre":"'.$row["genre"].'"},';
 		}
 		$data = substr($data, 0, strlen($data)-1);
 		$data .= "]";
@@ -270,7 +270,7 @@ if($_POST["action"] == "get_tracks"){
 		// $sql = "select filename from music where albums = '$album'";
 		// $qr = mysql_query($sql) or die(mysql_error());
 		// while($row = mysql_fetch_assoc($qr)){
-			// $data .= $row["filename"].",";
+			// $data .= $row["filename"].",";ffggf
 		// }
 		echo "$data";
 	}

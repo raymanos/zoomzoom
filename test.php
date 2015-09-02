@@ -49,10 +49,10 @@ function mp3tags($filename){
 	} 
 	return unpack($format, $tmp);
 } 
-function addToTable($_artist, $_album, $_title, $_genre, $_year, $_filename, $_cover)
+function addToTable($_artist, $_album, $_title, $_genre, $_year, $_filename, $_cover, $_date)
 {
-	$sql = "insert into `music` (artist,albums,tracks,filename,cover,genre,year) values 
-			('$_artist','$_album','$_title','$_filename','$_cover','$_genre','$_year')";
+	$sql = "insert into `music` (artist,albums,tracks,filename,cover,genre,year,date) values 
+			('$_artist','$_album','$_title','$_filename','$_cover','$_genre','$_year','$_date')";
 	$q = mysql_query($sql) or die(mysql_error());
 }
 function setInfoToTable($_ctracks, $_stracks)
@@ -63,26 +63,66 @@ function setInfoToTable($_ctracks, $_stracks)
 }
 //создаем таблицу
 $query = mysql_query("create table if not exists `music` (
-							`id` int(11) not null auto_increment,
-							`artist` varchar(100) COLLATE utf8_general_ci NOT NULL,
-							`albums` varchar(100) COLLATE utf8_general_ci NOT NULL,
-							`tracks` varchar(100) COLLATE utf8_general_ci NOT NULL,
-							`filename` varchar(300) COLLATE utf8_general_ci NOT NULL,
-							`cover` varchar(300) COLLATE utf8_general_ci,
-							`genre` varchar(30) COLLATE utf8_general_ci,
-							`year` varchar(30) COLLATE utf8_general_ci,
+							`id`        int(11) not null auto_increment,
+							`artist`    varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`albums`    varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`tracks`    varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`filename`  varchar(300) COLLATE utf8_general_ci NOT NULL,
+							`cover`     varchar(300) COLLATE utf8_general_ci,
+							`genre`     varchar(30)  COLLATE utf8_general_ci,
+							`year`      varchar(30)  COLLATE utf8_general_ci,
+							`date`      datetime     COLLATE utf8_general_ci,
+							`avg_star`  float(11,2)  COLLATE utf8_general_ci,
+							`avg_count` float(11,2)  COLLATE utf8_general_ci,
+							`count`     int(11)      COLLATE utf8_general_ci,
 							primary key(id))") or die(mysql_error());
+
 $query = mysql_query("create table if not exists `music_information` (
 							`id` int(11) not null auto_increment,
 							`size_tracks`  varchar(30)  COLLATE utf8_general_ci NOT NULL,
 							`count_tracks` varchar(300) COLLATE utf8_general_ci NOT NULL,
-							`lastScan` datetime,
+							`lastScan` datetime COLLATE utf8_general_ci NOT NULL,
+							primary key(id))") or die(mysql_error());
+
+// Таблица "Количесво воспроизведений"
+$query = mysql_query("create table if not exists `counts` (
+							`id`         int(11) not null auto_increment,
+							`id_user`    int(11)  COLLATE utf8_general_ci NOT NULL,
+							`id_track`   int(11)  COLLATE utf8_general_ci NOT NULL,
+							`count`      int(11)  COLLATE utf8_general_ci NOT NULL,
+							`last_date`  datetime COLLATE utf8_general_ci NOT NULL,
+							primary key(id))") or die(mysql_error());
+// Таблица "Рейтинг треков"
+$query = mysql_query("create table if not exists `rating` (
+							`id`         int(11) not null auto_increment,
+							`id_user`    int(11)  COLLATE utf8_general_ci NOT NULL,
+							`id_track`   int(11)  COLLATE utf8_general_ci NOT NULL,
+							`star`      int(11)  COLLATE utf8_general_ci NOT NULL,
+							`last_date`  datetime COLLATE utf8_general_ci NOT NULL,
+							primary key(id))") or die(mysql_error());
+
+// Плейлисты
+$query = mysql_query("create table if not exists `user_playlist` (
+							`id`           int(11) not null auto_increment,
+							`id_user`      varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`name`         varchar(300) COLLATE utf8_general_ci NOT NULL,
+							`date`         datetime     COLLATE utf8_general_ci NOT NULL,
+							`social`       int(11)      COLLATE utf8_general_ci NOT NULL,
+							`social_ratng` int(11)      COLLATE utf8_general_ci NOT NULL,
+							primary key(id))") or die(mysql_error());
+
+$query = mysql_query("create table if not exists `playlists` (
+							`id`       int(11) not null auto_increment,
+							`id_pls`   varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`id_user`  varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`id_track` varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`date`     datetime COLLATE utf8_general_ci NOT NULL,
 							primary key(id))") or die(mysql_error());
 $dir_iterator = new RecursiveDirectoryIterator("music");
 $iterator     = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
 // could use CHILD_FIRST if you so wish
 $count_tracks = $size_tracks = 0;
-
+$current_date = date("Y-m-d H:i:s"); 
 foreach ($iterator as $file) {
 	if( $file != '.' && $file != '..')
 		if( $file->isFile() )
@@ -109,6 +149,7 @@ foreach ($iterator as $file) {
 				$title    = mysql_real_escape_string($title);
 				$cover    = mysql_real_escape_string($cover);
 
+				addToTable($artist, $album, $title, $genre, $year, $filename, $cover, $current_date);
 				echo "$artist|$album|$title|$genre|$year<br> $filename";
 				echo "<hr><br>";
 

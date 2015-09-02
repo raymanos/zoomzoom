@@ -630,8 +630,8 @@ $("#audio")[0].onended = function(){
 				// Artist Click
 				// $('.artistClass .lbjs-item').on("click",function(){
 			$(document).on("click", ".artistClass .lbjs-item", function(){	
-					// alert("Artist: "+$(this).html());
-					audioPlayer.currentArtist = $(this).html();
+					alert("Artist: "+encodeURIComponent($(this).html()));
+					audioPlayer.currentArtist = encodeURIComponent($(this).html());
 					l(audioPlayer.currentArtist);
 					var data = "&artist="+audioPlayer.currentArtist;
 					data += '&action=get_album&';

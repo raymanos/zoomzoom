@@ -9,6 +9,8 @@ var currentNum = 0;//для логики
 var done = false;
 //Инициализтруем плеер
 var audioPlayer = new myJSplayer("#audio");
+var _userID = $("#user_info").attr("id_user");
+var _login  = $("#user_info").text();
 audioPlayer.init();
 
 pl.updateMusicStatictic = function(music_id,user,genre){
@@ -24,15 +26,19 @@ pl.updateMusicStatictic = function(music_id,user,genre){
 		}
 	})
  }
-function getStars(music_id,user){
+function getStars(id_track,id_user){
 	$.ajax({
 		type:"POST",
 		url:"query.php",
-		data:"action=get_stars&music_id="+music_id+"&user="+user,
+		data:"action=get_stars&id_track="+id_track+"&id_user="+id_user,
 		success: function(data){
-			// l(data);
-			var stars = parseInt(data);
-			var cur_id = "rating"+music_id;
+			l(data);
+			var stars = -1;
+			if( parseInt(data) != -1 )
+				stars = parseInt(data);
+
+			// var stars = parseInt(data);
+			var cur_id = "rating"+id_track;
 				if( stars == 10){
 					$("#"+cur_id+" .part1").attr("src","img/yellow_star_part1.png");
 					$("#"+cur_id+" .part2").attr("src","img/yellow_star_part2.png");
@@ -123,35 +129,10 @@ function addtoTable(id_track,artist,title,filename,cover,num,genre){
 	$("#track-table").append($("<tr><td>"+num+".</td><td><a href='#' genre='"+genre+"' id_track='"+id_track+"' num='"+(num-1)+"' artist='"+
 		artist+"' cover='"+cover+"' filename='"+filename+"' class='mp3a'>"+
 		title+"</a></td><td>"+rating_div+"</td><td><img class='minus-mp3'src='img/minus.png'/></td></tr>"));
-	var user = $.trim($("#user_info").text());
-	getStars(id_track,user);
+
+	getStars(id_track,_userID);
  }
-// pl.playlistExists = function(name){
-// 	// l("Curr: "+currentNamePlaylist);
-// 	l("FUNC WORK!!!");
-// 	var data = "&name="+name+"&action=pls_exists&";
-// 	var result = false;
-// 	$.ajax({
-// 		type: "POST",
-// 		async: false,
-// 		data: data,
-// 		url: "query.php",
-// 		success: function(data){
-// 			l("Server: "+data);
-// 			//true - существует
-// 			//false - нету
-// 			if(data == "true"){
-// 				l("Client: Есть такой плейлист");
-// 				var result = true;
-// 			}
-// 			else{
-// 				l("Client: Нет такого плейлиста");
-// 				var result = false;
-// 			}
-// 		}
-// 	});
-// 	return result;
-//  }
+
 pl.clearPlaylist = function(){
 	// currentPlaylist = [];
 	num = 1;
@@ -243,16 +224,6 @@ pl.prevTrack = function(){
 	pl.updateInfo();
 	done = false;
  }
-// pl.playTrack = function(elem, filename){
-// 	playerState = "pause";
-// 	$("#player-play").attr("src","img/pause.png");
-// 	elem.src = filename; 
-// 	elem.play();
-// 	//формируем slider
-// 	dur = elem.duration;
-// 	l(dur);
-// 	done = false;
-//  }
 //Cобытия плеера
 $("#audio")[0].ontimeupdate = function(){
 	$("#audio-numbers").html(audioPlayer.updateNumbers());
@@ -288,16 +259,16 @@ $("#audio")[0].onended = function(){
 // --------------------------------------------------------------------------------------------
 		$(document).ready(function() {
 			//получаем имя пользователя 
-			var user = $.trim($("#user_info").text());
+			var id_user = $("#user_info").attr("id_user");
+			l(audioPlayer);
 			//Обработчик нажатия на оценку
 			$(document).on("click",".small-image",function(){
 				var star = 0;
 				l($(this).attr("id"));
 				var cur_id = $(this).parent("div").attr("id");
-				l(cur_id);
-				var music_id = cur_id.split("rating")[1];
-				var user = $.trim($("#user_info").text());
-				l(music_id);
+				// l(cur_id)
+				var id_track = audioPlayer.currentID;//cur_id.split("rating")[1];
+				// l(music_id);
 				if( $(this).attr("id") == "star10" ){
 					$("#"+cur_id+" .part1").attr("src","img/yellow_star_part1.png");
 					$("#"+cur_id+" .part2").attr("src","img/yellow_star_part2.png");
@@ -367,7 +338,7 @@ $("#audio")[0].onended = function(){
 				$.ajax({
 					type:"POST",
 					url:"query.php",
-					data:"action=set_stars&star="+star+"&music_id="+music_id+"&user="+user,
+					data:"action=set_stars&star="+star+"&id_track="+id_track+"&id_user="+id_user,
 					success: function(data){
 						l(data);
 					}
@@ -381,7 +352,7 @@ $("#audio")[0].onended = function(){
 			//обложка по умолчанию
 			$("#cover").attr("src","img/un_cover.png");
 			//Считываем плейлисты
-			audioPlayer.getNamesPls(user, pl.getNamesPls);
+			// audioPlayer.getNamesPls(user, pl.getNamesPls);
 			//Управление плеером ---------------------
 			$("#player-play").click(function(){
 				pl.playPause();
@@ -630,7 +601,7 @@ $("#audio")[0].onended = function(){
 				// Artist Click
 				// $('.artistClass .lbjs-item').on("click",function(){
 			$(document).on("click", ".artistClass .lbjs-item", function(){	
-					alert("Artist: "+encodeURIComponent($(this).html()));
+					// alert("Artist: "+encodeURIComponent($(this).html()));
 					audioPlayer.currentArtist = encodeURIComponent($(this).html());
 					l(audioPlayer.currentArtist);
 					var data = "&artist="+audioPlayer.currentArtist;

@@ -118,6 +118,17 @@ $query = mysql_query("create table if not exists `playlists` (
 							`id_track` varchar(30)  COLLATE utf8_general_ci NOT NULL,
 							`date`     datetime COLLATE utf8_general_ci NOT NULL,
 							primary key(id))") or die(mysql_error());
+
+$query = mysql_query("create table if not exists `users` (
+							`id`        int(11) not null auto_increment,
+							`login`     varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`password`  varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`salt`      varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`date_reg`  datetime COLLATE utf8_general_ci NOT NULL,
+							`date_last` datetime COLLATE utf8_general_ci NOT NULL,
+							`admin`     int(11) COLLATE utf8_general_ci NOT NULL,
+							`pid`       varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							primary key(id))") or die(mysql_error());
 $dir_iterator = new RecursiveDirectoryIterator("music");
 $iterator     = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
 // could use CHILD_FIRST if you so wish

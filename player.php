@@ -32,7 +32,7 @@
 		<div id="down-div">
 			<div id="audio-numbers" class="shadowtext">0:00 / -:--</div>
 			<div id="audio-slider"></div>
-			<div id="user_info">
+			<div id="user_info" id_user="<?php echo getIDUser($_SESSION["login"])?>">
 				<img id="userpic" src="img/user.png"/>
 				<?php echo $_SESSION["login"]; ?>
 				<img id="exit" src="img/exit.png" href="exit.php"/>

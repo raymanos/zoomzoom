@@ -64,29 +64,29 @@ if($_POST["action"] == "inc_count" ){
  
 if($_POST["action"] == "get_stars" ){
 	$stars = 0;
-	$music_id = $_POST["music_id"];
-	$user = $_POST["user"];
-	$sql = "select music_id from ".$user."_history where music_id = '$music_id'";
-	$count = mysql_query($sql) or die(mysql_error());
-	if(mysql_num_rows($count) != 0){
-		$sql = "select rating from ".$user."_history where music_id = '$music_id'";
-		$qr = mysql_query($sql);
-		$stars = mysql_fetch_assoc($qr)["rating"];
-	}
-	echo $stars;
+	$id_track = $_POST["id_track"];
+	$id_user  = $_POST["id_user"];
+	$sql = "select star from rating where id_track = $id_track and id_user = $id_user";
+	$qr = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($qr);
+	if($row["star"] != "")
+		echo $row["star"];
+	else
+		echo "-1";
  }
 if($_POST["action"] == "set_stars" ){
-	$music_id = $_POST["music_id"];
-	$star = $_POST["star"];
-	$user = $_POST["user"];
-	$sql = "select music_id from ".$user."_history where music_id = '$music_id'";
+	$id_track   = $_POST["id_track"];
+	$star      = $_POST["star"];
+	$id_user   = $_POST["id_user"];
+	$last_date = date("Y-m-d H:i:s");
+	$sql = "select id_track from rating where id_track = '$id_track' and id_user = '$id_user'";
 	$count = mysql_query($sql) or die(mysql_error());
 	if(mysql_num_rows($count) == 0){
-		$sql = "insert into ".$user."_history (music_id,rating) value ('$music_id','$star')";
+		$sql = "insert into rating (id_user,id_track,star,last_date) value ('$id_user','$id_track','$star','$last_date')";
 		mysql_query($sql) or die(mysql_error());
 	}
 	else{
-		$sql = "update ".$user."_history set rating = '$star' where music_id = '$music_id'";
+		$sql = "update rating set star = '$star' where id_track = '$id_track' and id_user = '$id_user'";
 		mysql_query($sql) or die(mysql_error());
 	}
 	echo "true";

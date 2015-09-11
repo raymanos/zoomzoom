@@ -64,13 +64,13 @@ function setInfoToTable($_ctracks, $_stracks)
 //создаем таблицу
 $query = mysql_query("create table if not exists `music` (
 							`id`        int(11) not null auto_increment,
-							`artist`    varchar(100) COLLATE utf8_general_ci NOT NULL,
-							`albums`    varchar(100) COLLATE utf8_general_ci NOT NULL,
-							`tracks`    varchar(100) COLLATE utf8_general_ci NOT NULL,
+							`artist`    varchar(150) COLLATE utf8_general_ci NOT NULL,
+							`albums`    varchar(150) COLLATE utf8_general_ci NOT NULL,
+							`tracks`    varchar(150) COLLATE utf8_general_ci NOT NULL,
 							`filename`  varchar(300) COLLATE utf8_general_ci NOT NULL,
 							`cover`     varchar(300) COLLATE utf8_general_ci,
-							`genre`     varchar(30)  COLLATE utf8_general_ci,
-							`year`      varchar(30)  COLLATE utf8_general_ci,
+							`genre`     varchar(100)  COLLATE utf8_general_ci,
+							`year`      varchar(100)  COLLATE utf8_general_ci,
 							`date`      datetime     COLLATE utf8_general_ci,
 							`avg_star`  float(11,2)  COLLATE utf8_general_ci,
 							`avg_count` float(11,2)  COLLATE utf8_general_ci,
@@ -113,21 +113,24 @@ $query = mysql_query("create table if not exists `user_playlist` (
 
 $query = mysql_query("create table if not exists `playlists` (
 							`id`       int(11) not null auto_increment,
-							`id_pls`   varchar(30)  COLLATE utf8_general_ci NOT NULL,
-							`id_user`  varchar(30)  COLLATE utf8_general_ci NOT NULL,
-							`id_track` varchar(30)  COLLATE utf8_general_ci NOT NULL,
-							`date`     datetime COLLATE utf8_general_ci NOT NULL,
+							`id_pls`   int(11)      COLLATE utf8_general_ci NOT NULL,
+							`name_pls` varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`id_user`  int(11)      COLLATE utf8_general_ci NOT NULL,
+							`id_track` int(11)      COLLATE utf8_general_ci NOT NULL,
+							`date`     datetime     COLLATE utf8_general_ci NOT NULL,
+							`social`   int(11)      COLLATE utf8_general_ci NOT NULL,
+							`social_rating` int(11) COLLATE utf8_general_ci NOT NULL,
 							primary key(id))") or die(mysql_error());
 
 $query = mysql_query("create table if not exists `users` (
 							`id`        int(11) not null auto_increment,
-							`login`     varchar(30)  COLLATE utf8_general_ci NOT NULL,
-							`password`  varchar(30)  COLLATE utf8_general_ci NOT NULL,
-							`salt`      varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`login`     varchar(40)  COLLATE utf8_general_ci NOT NULL,
+							`password`  varchar(50)  COLLATE utf8_general_ci NOT NULL,
+							`salt`      varchar(50)  COLLATE utf8_general_ci NOT NULL,
 							`date_reg`  datetime COLLATE utf8_general_ci NOT NULL,
 							`date_last` datetime COLLATE utf8_general_ci NOT NULL,
 							`admin`     int(11) COLLATE utf8_general_ci NOT NULL,
-							`pid`       varchar(30)  COLLATE utf8_general_ci NOT NULL,
+							`pid`       varchar(50)  COLLATE utf8_general_ci NOT NULL,
 							primary key(id))") or die(mysql_error());
 $dir_iterator = new RecursiveDirectoryIterator("music");
 $iterator     = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);

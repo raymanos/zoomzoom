@@ -46,36 +46,21 @@ function getSerialByName($name, $name_ru=false){
 				 'Class' => $class,
 				 'Status'=> $st);
  }
-function getSerialsByTag($tag){
-	$sql = "select login from users";
+ // Возвращает количество прослушиваний всего и по пользователю
+function getTrackCountByUser($id_track,$id_user)
+{
+	$sql = "select id_user,count,last_date from counts where id_track = '$id_track'";
 	$res = mysql_query($sql) or die(mysql_error());
-	// $users = array('raymanos');
-	$serials = array();
-	while($data = mysql_fetch_assoc($res)){
-		$users[] = $data['login'];
+	$data = array();
+	while($row = mysql_fetch_assoc($res))
+	{
+		$data["login"]     = $row["login"];
+		$data["id_user"]   = $row["id_user"];
+		$data["count"]     = $row["count"];
+		$data["last_date"] = $row["last_date"]; 
 	}
-
-	$fields = "NameEn,NameRu,Stars,Comment,link,Tags";
-	$count_users = count($users);
-	$sql = '';
-	for($i=0; $i < $count_users; $i++){
-		if($count_users-1 == $i)
-			$sql .= "select $fields from {$users[$i]} where Tags like '%$tag%' COLLATE utf8_bin ";
-		else
-			$sql .= "select $fields from {$users[$i]} where Tags like '%$tag%' COLLATE utf8_bin union ";
-	}
-
-	$res = mysql_query($sql) or die(mysql_error());
-	$fields = array('Название(En)','Название(Ru)','Оценка','Комментарий','Ссылка','Теги');
-	$class = array('NameEn','NameRu','Stars','Comment','link','Tags','Min');
-
-	return array('Header'=> "Запрос по тегу '$tag'",
-				 'Fields'=> $fields,
-				 'Res'   => $res,
-				 'Class' => $class,
-				 'Status'=> $st);
- }
-
+	return json_encode($data);
+}
 //return raymanos,ivan,...,badsanta
 function getAllUsers(){
 	$sql = "select login from users";

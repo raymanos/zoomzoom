@@ -20,12 +20,14 @@ function myJSplayer(audio_id){
 		this.audioPlayer.ontimeupdate = this.ontimeupdate;
 		this.playerState = "pause";
 		//--------------------------
-		this.currentID = "";
-		this.currentArtist = "";
-		this.currentAlbum = "";
-		this.currentTitle = "";
-		this.currentGenre = "";
-		this.currentCover = "";
+		this.currentIDTrack = 0;
+		this.currentID       = "";
+		this.currentArtist   = "";
+		this.currentAlbum    = "";
+		this.currentTitle    = "";
+		this.currentGenre    = "";
+		this.currentCover    = "";
+		this.currentYear     = ""
 		this.currentFilename = "";
 		this.currentTrack = 0;// метка для плейлиста
 		this.currentNamePlaylist = "";
@@ -58,6 +60,7 @@ function myJSplayer(audio_id){
 				 "title":this.currentTitle,
 				 "genre":this.currentGenre,
 				 "cover":this.currentCover,
+				 "year" :this.currentYear,
 				 "filename":this.currentFilename});
 	 }
 	this.playPause = function(){

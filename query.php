@@ -9,8 +9,8 @@ function getClearFilename($filename){
 	$filename = preg_replace("/%2F/","/",$filename);
 	return $filename;
  }
-function playlistExists($user,$name){
-	$sql = "select name from ".$user."_playlists where name='$name'";
+function playlistExists($id_user,$name_pls){
+	$sql = "select name_pls from playlists where id_user = '$id_user' and name_pls='$name_pls'";
 	// echo $sql;
 	$qr = mysql_query($sql);
 	$result = mysql_num_rows($qr);
@@ -43,20 +43,23 @@ if($_POST["action"] == "update_genre" ){
 	echo "true_genre";
  }
 if($_POST["action"] == "inc_count" ){
-	$music_id = $_POST["music_id"];
-	$user = $_POST["user"];
-	$sql = "select music_id from ".$user."_history where music_id = '$music_id'";
-	$count = mysql_query($sql) or die(mysql_error());
-	if(mysql_num_rows($count) == 0){
-		$sql = "insert into ".$user."_history (music_id,count) value ('$music_id','1')";
+	$id_track = $_POST["id_track"];
+	$id_user  = $_POST["id_user"];
+	$last_date  = date("Y-m-d H:i:s");
+	$sql = "select id_track from counts where id_track = '$id_track' and id_user = '$id_user'";
+
+	$countN = mysql_query($sql) or die(mysql_error());
+	if(mysql_num_rows($countN) == 0){
+		$sql = "insert into counts (id_track,id_user,count,last_date) value ('$id_track','$id_user','1','$last_date')";
 		mysql_query($sql) or die(mysql_error());
 	}
 	else{
-		$qr = mysql_query("select count from ".$user."_history where music_id='$music_id'") or die(mysql_error());
+		echo "@2";
+		$qr = mysql_query("select count from counts where id_track = '$id_track' and id_user = '$id_user'") or die(mysql_error());
 		$count = mysql_fetch_assoc($qr)["count"];
 		$count++;
-		echo "Old count: $count";
-		$sql = "update ".$user."_history set count = '$count' where music_id = '$music_id'";
+		// echo "Old count: $count";
+		$sql = "update counts set count = '$count',last_date = '$last_date' where id_track = '$id_track' and id_user = '$id_user'";
 		mysql_query($sql) or die(mysql_error());
 	}
 	echo "true";
@@ -76,9 +79,9 @@ if($_POST["action"] == "get_stars" ){
  }
 if($_POST["action"] == "set_stars" ){
 	$id_track   = $_POST["id_track"];
-	$star      = $_POST["star"];
-	$id_user   = $_POST["id_user"];
-	$last_date = date("Y-m-d H:i:s");
+	$star       = $_POST["star"];
+	$id_user    = $_POST["id_user"];
+	$last_date  = date("Y-m-d H:i:s");
 	$sql = "select id_track from rating where id_track = '$id_track' and id_user = '$id_user'";
 	$count = mysql_query($sql) or die(mysql_error());
 	if(mysql_num_rows($count) == 0){
@@ -127,27 +130,34 @@ if($_POST["action"] == "get_artists"){
 	}
  }
 if($_POST["action"] == "get_album"){
-	$data = "";
+	$data = array();
 	$artist = mysql_real_escape_string($_POST["artist"]);
 	// echo "333";
-	$sql = "select distinct albums from music where artist = '$artist'";
+	$sql = "select distinct albums,year from music where artist = '$artist'";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
 	}
 	else{
+		$i = 0;
 		while($row = mysql_fetch_assoc($qr)){
-			$data .= $row["albums"].",";
-			// echo $row['albums'];
+			// $data .= $row["albums"].",";     <--- так было
+			$data[$i]["album"] = $row["albums"];
+			$data[$i]["year" ] = $row["year"];
+			// $data[$row["albums"]] = $row["year"];
+			$i++;
+			
 		}
-		$data = substr($data, 0, strlen($data)-1);
-		echo "$data";
+		// $data = substr($data, 0, strlen($data)-1);
+		// echo "$data";
+		echo json_encode($data);
+		// print_r($data);
 	}
  }
 if($_POST["action"] == "pls_exists"){
-	$name = $_POST["name"];
-	$user = $_POST["user"];
-	if( playlistExists($user,$name) ){
+	$name = $_POST["name_pls"];
+	$user = $_POST["id_user"];
+	if( playlistExists($id_user,$name_pls) ){
 		echo "true";
 	}
 	else{
@@ -155,8 +165,10 @@ if($_POST["action"] == "pls_exists"){
 	}
  }
 if($_POST["action"] == "get_name_pls"){
-	$user = $_POST["user"];
-	$sql = "select distinct name from ".$user."_playlists";
+	$id_user  = $_POST["id_user"];
+	$id_pls   = $_POST["id_pls"];
+	$name_pls = $_POST["name_pls"];
+	$sql = "select distinct name from playlists";
 	$qr = mysql_query($sql) or die(mysql_error());
 	$array_pls = array();
 
@@ -240,8 +252,9 @@ if($_POST["action"] == "save_pls"){
  }
 if($_POST["action"] == "get_tracks"){
 	$data = "[";
-	$album = $_POST["album"];
-	$sql = "select distinct id,tracks,artist,filename,cover,genre from music where albums = '$album'";
+	$album  = $_POST["album"];
+	// $artist = $_POST["artist"];
+	$sql = "select distinct id,tracks,artist,filename,cover,genre,year from music where albums = '$album'";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
@@ -262,7 +275,7 @@ if($_POST["action"] == "get_tracks"){
 			$cover = preg_replace("/[+]/","%20",$cover);
 			$cover = preg_replace("/%2F/","/",$cover);
 
-			$data .= '{"Title":"'.$row["tracks"].'","Artist":"'.$row["artist"].'","Filename":"'.$URL.'","Cover":"'.$cover.'","id_track":"'.$row["id"].'","Genre":"'.$row["genre"].'"},';
+			$data .= '{"Title":"'.$row["tracks"].'","Artist":"'.$row["artist"].'","Filename":"'.$URL.'","Cover":"'.$cover.'","id_track":"'.$row["id"].'","Genre":"'.$row["genre"].'","Year":"'.$row["year"].'"},';
 		}
 		$data = substr($data, 0, strlen($data)-1);
 		$data .= "]";

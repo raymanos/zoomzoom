@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: text/html;charset=utf-8');
 include "connect_db.php";
+include "func.php";
 
 function getClearFilename($filename){
 	$filename = iconv("utf8","windows-1251",$filename);
@@ -22,6 +23,40 @@ function playlistExists($id_user,$name_pls){
 		return false;
 	}
  }
+
+if($_POST["action"] == "get_count")
+{
+	$id_user  = $_POST["id_user"];
+	$id_track = $_POST["id_track"];
+	$sql = "select my.count myCount,allUsers.count allCount
+			from
+			(select count from counts where id_user = '$id_user' and id_track = '$id_track') my,
+			(select sum(count) count  from counts where id_track = '$id_track') allUsers";
+	$res = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($res);
+	// if(count($row)>0)
+	// $myCount  = $row["myCount"];
+	// $allCount = $row["allCount"];
+	// echo "get_count";
+	// print_r($row);
+	// echo "row:".$row;
+	echo json_encode($row);
+
+}
+if($_POST["action"] == "set_settings")
+{
+	$id_user = $_POST["id_user"];
+	$volume  = $_POST["volume"];
+	echo setSettings($id_user,$volume);
+}
+if($_POST["action"] == "get_settings")
+{
+	$id_user = $_POST["id_user"];
+	$qr = mysql_query("select volume from settings where id_user = '$id_user'") or die(mysql_error());
+	$res = mysql_fetch_assoc($qr);
+	$volume = $res["volume"];
+	echo $volume;
+}
 
 if($_POST["action"] == "update_genre" ){
 	$user = $_POST["user"];
@@ -253,8 +288,8 @@ if($_POST["action"] == "save_pls"){
 if($_POST["action"] == "get_tracks"){
 	$data = "[";
 	$album  = $_POST["album"];
-	// $artist = $_POST["artist"];
-	$sql = "select distinct id,tracks,artist,filename,cover,genre,year from music where albums = '$album'";
+	$artist = $_POST["artist"];
+	$sql = "select distinct id,tracks,artist,filename,cover,genre,year from music where albums = '$album' and artist = '$artist'";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
@@ -264,13 +299,13 @@ if($_POST["action"] == "get_tracks"){
 			//декодируем имя файла
 			$f = $row['filename'];
 			$URL = $f;
-			$URL = iconv("utf8","windows-1251",$URL);
+			// $URL = iconv("utf8","windows-1251",$URL);
 			$URL = urlencode($URL);
 			$URL = preg_replace("/[+]/","%20",$URL);
 			$URL = preg_replace("/%2F/","/",$URL);
 
 			$cover = $row["cover"];
-			$cover = iconv("utf8","windows-1251",$cover);
+			// $cover = iconv("utf8","windows-1251",$cover);
 			$cover = urlencode($cover);
 			$cover = preg_replace("/[+]/","%20",$cover);
 			$cover = preg_replace("/%2F/","/",$cover);

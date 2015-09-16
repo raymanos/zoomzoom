@@ -46,6 +46,41 @@ function getSerialByName($name, $name_ru=false){
 				 'Class' => $class,
 				 'Status'=> $st);
  }
+function getSettings($id_user)
+{
+	$res = mysql_query("select volume from settings where id_user = '$id_user'") or die(mysql_error());
+	$volume = mysql_fetch_assoc($res);
+	return $volume["volume"];
+}
+function setSettings($id_user,$volume)
+{
+	// Сначала ищем настройку
+	$res = mysql_query("select volume from settings where id_user = '$id_user'") or die(mysql_error());
+	$count = mysql_num_rows($res);
+
+	// print_r($res);
+	if($count>0)
+	{
+		// Есть уже настройка
+		// Тогда обновляем
+		$res = mysql_query("update settings set volume = '$volume' where id_user = '$id_user'") or die(mysql_error());
+		// $count = mysql_fetch_array($res);
+		if($res)
+			echo "true";
+		else
+			echo "false";
+	}
+	else
+	{
+		$res = mysql_query("insert into settings (id_user,volume) values ('$id_user','$volume') ");
+		if($res)
+			echo "true";
+		else
+			echo "false";
+	}
+
+
+} 
  // Возвращает количество прослушиваний всего и по пользователю
 function getTrackCountByUser($id_track,$id_user)
 {

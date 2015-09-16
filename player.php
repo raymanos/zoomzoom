@@ -94,7 +94,7 @@
 
 <div id="panel-right" class="mystyle">
 	<div id="cover-div"><img src="" id="cover"></div>
-	<div id="track-info-div"></div>
+	<div id="track-info"></div>
 </div>
 </div>
 <div id="dialog-div"><input type="text" id="name-pls"></div>

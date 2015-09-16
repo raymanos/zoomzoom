@@ -19,8 +19,10 @@ function myJSplayer(audio_id){
 		this.audioPlayer = $(audio_id)[0];
 		this.audioPlayer.ontimeupdate = this.ontimeupdate;
 		this.playerState = "pause";
+		this.currentVolume = 0;
 		//--------------------------
-		this.currentIDTrack = 0;
+		this.currentIDTrack  = 0;
+		this.currentNum      = 0;
 		this.currentID       = "";
 		this.currentArtist   = "";
 		this.currentAlbum    = "";

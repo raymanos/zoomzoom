@@ -54,6 +54,7 @@ function addToTable($_artist, $_album, $_title, $_genre, $_year, $_filename, $_c
 	$sql = "insert into `music` (artist,albums,tracks,filename,cover,genre,year,date) values 
 			('$_artist','$_album','$_title','$_filename','$_cover','$_genre','$_year','$_date')";
 	$q = mysql_query($sql) or die(mysql_error());
+
 }
 function setInfoToTable($_ctracks, $_stracks)
 {
@@ -132,11 +133,18 @@ $query = mysql_query("create table if not exists `users` (
 							`admin`     int(11) COLLATE utf8_general_ci NOT NULL,
 							`pid`       varchar(50)  COLLATE utf8_general_ci NOT NULL,
 							primary key(id))") or die(mysql_error());
+// таблица настроек
+$query = mysql_query("create table if not exists `settings` (
+							`id`        int(11) not null auto_increment,
+							`id_user`   int(11)  COLLATE utf8_general_ci NOT NULL,
+							`volume`    int(11)  COLLATE utf8_general_ci NOT NULL DEFAULT 8,
+							primary key(id))") or die(mysql_error());
 $dir_iterator = new RecursiveDirectoryIterator("music");
 $iterator     = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::SELF_FIRST);
 // could use CHILD_FIRST if you so wish
 $count_tracks = $size_tracks = 0;
 $current_date = date("Y-m-d H:i:s"); 
+$cc = 0;
 foreach ($iterator as $file) {
 	if( $file != '.' && $file != '..')
 		if( $file->isFile() )
@@ -145,15 +153,21 @@ foreach ($iterator as $file) {
 			{
 				$tags = mp3tags($file);
 
-				$artist   = $tags["ARTISTS"];
 				$filename = $file;
-				$filename = iconv("windows-1251","UTF-8",$filename);
+				$cover = dirname($filename)."/cover.jpg";
+				if (mb_detect_encoding($filename, 'UTF-8', true) === false) { 
+						
+    					// $filename = iconv("windows-1251","UTF-8",$filename); 
+					echo "Coding into WINDOWS-1251<br>";
+					$filename = iconv("WINDOWS-1251","UTF-8",$filename); 
+					$cover = dirname($filename)."/cover.jpg";
+    			}
+
 				$artist   = iconv("windows-1251","UTF-8",$tags["ARTISTS"]);
 				$album    = iconv("windows-1251","UTF-8",$tags["ALBUM"]);
 				$title    = iconv("windows-1251","UTF-8",$tags["NAME"]);
 				$genre    = getGenre($tags["GENRENO"]);
 				$year     = $tags["YEAR"];
-				$cover = dirname(iconv("windows-1251","UTF-8",$file))."/cover.jpg";
 
 				$size_tracks  += $file->getSize();
 				$count_tracks ++; 
@@ -167,13 +181,13 @@ foreach ($iterator as $file) {
 				echo "$artist|$album|$title|$genre|$year<br> $filename";
 				echo "<hr><br>";
 
-				// if($count_tracks == 5000) die();
+				// if($count_tracks == 100) die();
 		    	// echo "$file<br>";
 		    }
 		}
-
 }
 $size_tracks_mb = round($size_tracks / 1000000000,2);
 setInfoToTable($count_tracks, $size_tracks_mb);
 echo "size_tracks: $size_tracks_mb<br>count tracks: $count_tracks";
+die("The END");
 ?>

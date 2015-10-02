@@ -16,7 +16,7 @@ body{
 }
 .mystyle{
 	background-color: white;
-	border-radius: 8px;
+	/*border-radius: 8px;*/
 	/*border: 2px solid #6678b1;*/
 	margin: 3px;
 	-webkit-box-shadow: 0px 0px 30px 0px rgba(50, 50, 50, 0.86);
@@ -311,9 +311,6 @@ a.ui-tabs-anchor{
 #track-info{
 	font-size: 12px;
 }
-/* .ui-tabs-vertical { width: 55em; }
-  .ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 12em; }
-  .ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
-  .ui-tabs-vertical .ui-tabs-nav li a { display:block; }
-  .ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; }
-  .ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 40em;}*/
+.social-color{
+	color: blue;
+}

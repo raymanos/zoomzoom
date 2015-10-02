@@ -11,9 +11,9 @@ function getClearFilename($filename){
 	return $filename;
  }
 function playlistExists($id_user,$name_pls){
-	$sql = "select name_pls from playlists where id_user = '$id_user' and name_pls='$name_pls'";
+	$sql = "select name from user_playlist where id_user = '$id_user' and name='$name_pls'";
 	// echo $sql;
-	$qr = mysql_query($sql);
+	$qr = mysql_query($sql) or die(mysql_error());
 	$result = mysql_num_rows($qr);
 	// echo "$result";
 	if($result > 0){
@@ -23,9 +23,27 @@ function playlistExists($id_user,$name_pls){
 		return false;
 	}
  }
-
-if($_POST["action"] == "get_count")
-{
+function getNamePlsByID($id_user, $name){
+	$sql = "select id from user_playlist where id_user = '$id_user' and name = '$name'";
+	$qr = mysql_query($sql) or die(mysql_error());
+	if( mysql_num_rows($qr) > 0 )
+	{
+		$res = mysql_fetch_assoc($qr);
+		$id = $res["id"];
+	}
+	else
+		$id = -1;
+	return $id;
+ }
+// Добавляем каталог в базу
+if($_POST["action"] == "add_folder"){
+	$path = $_POST["path"];
+	if(addFolder($path))
+		echo "true";
+	else
+		echo "false";
+ }
+if($_POST["action"] == "get_count"){
 	$id_user  = $_POST["id_user"];
 	$id_track = $_POST["id_track"];
 	$sql = "select my.count myCount,allUsers.count allCount
@@ -42,21 +60,19 @@ if($_POST["action"] == "get_count")
 	// echo "row:".$row;
 	echo json_encode($row);
 
-}
-if($_POST["action"] == "set_settings")
-{
+ }
+if($_POST["action"] == "set_settings"){
 	$id_user = $_POST["id_user"];
 	$volume  = $_POST["volume"];
 	echo setSettings($id_user,$volume);
-}
-if($_POST["action"] == "get_settings")
-{
+ }
+if($_POST["action"] == "get_settings"){
 	$id_user = $_POST["id_user"];
 	$qr = mysql_query("select volume from settings where id_user = '$id_user'") or die(mysql_error());
 	$res = mysql_fetch_assoc($qr);
 	$volume = $res["volume"];
 	echo $volume;
-}
+ }
 
 if($_POST["action"] == "update_genre" ){
 	$user = $_POST["user"];
@@ -129,29 +145,11 @@ if($_POST["action"] == "set_stars" ){
 	}
 	echo "true";
  }
-if($_POST["action"] == "love_track"){
-	$id = $_POST["id"];
-	$user = $_POST["user"];
-	//найти есть ли искомый ID, если есть то в него вставляем, если нет то создаем новый
-	$sql = "select music_id from ".$user."_history where music_id = '$id'";
-	echo $sql;
-	$count = mysql_query($sql) or die(mysql_error());
-	// Такого ID нет, вставляем новый
-	if(mysql_num_rows($count) == 0){
-		$sql = "insert into ".$user."_history (music_id,loved) value ('$id','true')";
-		mysql_query($sql) or die(mysql_error());
-	}
-	//есть такой ID, его обновляем
-	else{
-		$sql = "update ".$user."_history set loved = 'true' where music_id = '$id'";
-		mysql_query($sql) or die(mysql_error());
-	}
-	echo "true";
- }
+
 if($_POST["action"] == "get_artists"){
 	$data = "";
 	$genre = $_POST["genre"];
-	$sql = "select distinct artist from music where genre = '$genre'";
+	$sql = "select distinct artist from music where genre = '$genre' order by artist";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
@@ -190,111 +188,133 @@ if($_POST["action"] == "get_album"){
 	}
  }
 if($_POST["action"] == "pls_exists"){
-	$name = $_POST["name_pls"];
-	$user = $_POST["id_user"];
-	if( playlistExists($id_user,$name_pls) ){
+	$name = $_POST["name"];
+	$id_user = $_POST["id_user"];
+	if( playlistExists($id_user,$name) ){
 		echo "true";
 	}
 	else{
 		echo "false";
 	}
  }
+ // получаем все имена плейлистов 
 if($_POST["action"] == "get_name_pls"){
 	$id_user  = $_POST["id_user"];
-	$id_pls   = $_POST["id_pls"];
-	$name_pls = $_POST["name_pls"];
-	$sql = "select distinct name from playlists";
+
+	$sql = "select name,social from user_playlist where id_user = '$id_user' order by social";
 	$qr = mysql_query($sql) or die(mysql_error());
 	$array_pls = array();
-
+	$i = 0;
 	while($row = mysql_fetch_assoc($qr)){
-		$name = $row["name"];
-		$sql = "select id_track from ".$user."_playlists where name='$name'";
-		$qr2 = mysql_query($sql) or die(mysql_error());
-		while($row2 = mysql_fetch_assoc($qr2)){
-			$id_track = $row2["id_track"];
-			$array_pls[$name]["ids"][] = $id_track;
-		}
+		$array_pls[$i]["name"  ] = $row["name"];
+		$array_pls[$i]["social"] = $row["social"];
+		$i++;
 	}
-	$data = json_encode($array_pls);
-	echo $data;
+	$str = json_encode($array_pls);
+	echo $str;
  }
 if($_POST["action"] == "del_pls"){
-	$user = $_POST["user"];
-	$name = $_POST["name"];
-	$sql = "delete from ".$user."_playlists where name =	 '$name'";
+	$id_user = $_POST["id_user"];
+	$name    = $_POST["name"];
+	$sql = "delete from playlists where id in (
+				select * from (
+					select p.id 
+						from user_playlist up
+						join playlists p on up.id = p.id_pls  
+					where p.id_user = '$id_user' and name = '$name'
+				) as t
+			)";
+			
 	$qr = mysql_query($sql) or die(mysql_error());
 	if($qr){
-		echo "true";
+		$sql = "delete from user_playlist where id_user = '$id_user' and name = '$name'";
+		$qr = mysql_query($sql) or die(mysql_error());
+		if($qr)
+			echo "true";
+		else
+			echo "false";
 	}
 	else{
 		echo "false";
 	}
  }
 if($_POST["action"] == "load_pls"){
-	$user = $_POST["user"];
-	$data = "";
-	$data2 = "[";
-	$data_json = [];
+	$id_user = $_POST["id_user"];
 	$i = 0;
 	$name = $_POST["name"];
-
-	$sql = "select id_track from ".$user."_playlists where name='$name'";
+	$id_pls = getNamePlsByID($id_user,$name);
+	$data_json[0]["id"] = $data_json[0]["artist"] = $data_json[0]["albums"] = $data_json[0]["tracks"] = $data_json[0]["filename"] = 0;
+	$data_json[0]["cover"] = $data_json[0]["genre"] = 0;
+	$sql = "select m.id,m.artist,m.albums,m.tracks,m.filename,m.cover,m.genre
+				from playlists pl 
+				join user_playlist up on up.id = pl.id_pls
+				join music m on m.id = pl.id_track
+			where up.name='$name' and up.id_user = '$id_user'";
 	$qr = mysql_query($sql) or die(mysql_error());
-	while($row = mysql_fetch_assoc($qr)){
-		$id_track = $row["id_track"];
-		// echo $id_track;
-		$sql = "select id,artist,albums,tracks,filename,cover,genre from music where id = '$id_track'";
-		$qr2 = mysql_query($sql) or die(mysql_error());
-		while($row2 = mysql_fetch_assoc($qr2)){
-			$id = $row2["id"];
-			$artist = $row2["artist"];
-			$album = $row2["albums"];
-			$title = $row2["tracks"];
-			$filename = getClearFilename($row2["filename"]);
-			$cover = getClearFilename($row2["cover"]);
-			$genre = $row2["genre"];
-
-			$data_json[$i]["id"] = $id;
-			$data_json[$i]["artist"] = $artist;
-			$data_json[$i]["album"] = $album;
-			$data_json[$i]["title"] = $title;
-			$data_json[$i]["filename"] = $filename;
-			$data_json[$i]["cover"] = $cover;
-			$data_json[$i]["genre"] = $genre;
-
-			$i++;
-
-		}
-	 }
+	while( $row = mysql_fetch_assoc($qr) ){
+		$data_json[$i]["id_track"]       = $row["id"];
+		$data_json[$i]["artist"]   = $row["artist"];
+		$data_json[$i]["album"]    = $row["albums"];
+		$data_json[$i]["title"]    = $row["tracks"];
+		//декодируем имя файла
+		$URL = $row['filename'];
+		$URL = urlencode($URL);
+		$URL = preg_replace("/[+]/","%20",$URL);
+		$URL = preg_replace("/%2F/","/",$URL);
+		$data_json[$i]["filename"] = $URL;
+		// $data_json[$i]["filename"] = getClearFilename($row["filename"]);
+		$data_json[$i]["cover"]    = getClearFilename($row["cover"]);
+		$data_json[$i]["genre"]    = $row["genre"];
+		$i++;
+	}
+	// if($data_json)
 	$data = json_encode($data_json);
 	echo $data;
  }
 if($_POST["action"] == "save_pls"){
-	$user = $_POST["user"];
-	$data_json = $_POST["data"];//name,id_track <- их нужно записать в базу %login%_playlists
+	$id_user = $_POST["id_user"];
+	$data_json = $_POST["data"];//name,id_track <- их нужно записать в таблицу user_playlists
 	$name = $_POST["name"];
+	if($_POST["social"] == "on")
+		$social = 1;
+	else
+		$social = 0;
+
 	$data = json_decode($data_json);
 	$error = json_last_error();
 	$count = count($data);
-	// echo "data: $data_json";
-	for($i=0; $i < $count; $i++){
-		$id_track = $data[$i]->id;
-		$sql = "insert into ".$user."_playlists (name,id_track) values ('$name','$id_track')";
-		$qr = mysql_query($sql) or die(mysql_error());
-	 }
-	echo "true";
+	$last_date  = date("Y-m-d H:i:s");
+	// Записываем название плейлиста
+	$sql = "insert into user_playlist (id_user,name,date,social,social_ratng) values ('$id_user','$name','$last_date',$social,'0')";
+	$qr = mysql_query($sql) or die(mysql_error());
+	$id = getNamePlsByID($id_user,$name);
+	if($id != -1)
+	{
+		// echo "data: $data_json";
+		for($i=0; $i < $count; $i++){
+			$id_track = $data[$i]->id;
+			// Теперь пишем конкретные треки в таблицу playlists
+			$sql = "insert into playlists (id_pls,id_user,id_track,date) values ('$id','$id_user','$id_track','$last_date')";
+			$qr = mysql_query($sql) or die(mysql_error());
+	 	}
+		echo "true";
+	}
+	else
+	{
+		echo "false";
+	}
  }
 if($_POST["action"] == "get_tracks"){
-	$data = "[";
+	$dataMusic = array();
 	$album  = $_POST["album"];
 	$artist = $_POST["artist"];
-	$sql = "select distinct id,tracks,artist,filename,cover,genre,year from music where albums = '$album' and artist = '$artist'";
+	$sql = "select  id,tracks,artist,filename,cover,genre,year from music where albums = '$album' and artist = '$artist'";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
 	}
 	else{
+		$i = 0;
 		while($row = mysql_fetch_assoc($qr)){
 			//декодируем имя файла
 			$f = $row['filename'];
@@ -310,19 +330,39 @@ if($_POST["action"] == "get_tracks"){
 			$cover = preg_replace("/[+]/","%20",$cover);
 			$cover = preg_replace("/%2F/","/",$cover);
 
-			$data .= '{"Title":"'.$row["tracks"].'","Artist":"'.$row["artist"].'","Filename":"'.$URL.'","Cover":"'.$cover.'","id_track":"'.$row["id"].'","Genre":"'.$row["genre"].'","Year":"'.$row["year"].'"},';
+			$dataMusic[$i]["id_track"] = $row["id"];
+			$dataMusic[$i]["artist"]   = $artist;
+			$dataMusic[$i]["album"]    = $album;
+			$dataMusic[$i]["title"]    = $row["tracks"];
+			$dataMusic[$i]["filename"] = $URL;
+			$dataMusic[$i]["cover"]    = $cover;
+			$dataMusic[$i]["year"]     = $row["year"];
+			$dataMusic[$i]["genre"]    = $row["genre"];
+			$i++;
 		}
-		$data = substr($data, 0, strlen($data)-1);
-		$data .= "]";
-		// $data .= '@';
-		// $sql = "select filename from music where albums = '$album'";
-		// $qr = mysql_query($sql) or die(mysql_error());
-		// while($row = mysql_fetch_assoc($qr)){
-			// $data .= $row["filename"].",";ffggf
-		// }
-		echo "$data";
+		$str = json_encode($dataMusic);
+		echo $str;
 	}
  }
+if($_POST["action"] == "dataAudio"){
+	$id_track = $_POST["id_track"];
+	// echo "FUCK";
+	$sql = "select id,tracks,artist,albums,filename,cover,genre,year from music where id = $id_track";
+	$qr = mysql_query($sql) or die(mysql_error());
+	while($row = mysql_fetch_assoc($qr)){
+		$dataAudio["id_track"] = $row["id"];
+		$dataAudio["artist"]   = $row["artist"];
+		$dataAudio["tracks"]   = $row["tracks"];
+		$dataAudio["album"]    = $row["albums"];
+		$dataAudio["filename"] = $row["filename"];
+		$dataAudio["cover"]    = $row["cover"];
+		$dataAudio["genre"]    = $row["genre"];
+		$dataAudio["year"]     = $row["year"];
+	}
+	// echo "RETURN RESULT";
+	// print_r($dataAudio);
+	echo json_encode($dataAudio);
+}
 	
 
 ?>

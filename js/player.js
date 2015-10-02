@@ -7,22 +7,22 @@ var pl = new Object();
 var num = 1;//для графики
 var done = false;
 //Инициализтруем плеер
-var audioPlayer = new myJSplayer("#audio");
+var aP = new myJSplayer("#audio");
 var _userID = $("#user_info").attr("id_user");
 var _login  = $("#user_info").text();
-audioPlayer.init();
+aP.init();
 getSettings();
 /* Create a cache object */
 var cache = new LastFMCache();
-
 /* Create a LastFM object */
 var lastfm = new LastFM({
   apiKey    : 'f21088bf9097b49ad4e7f487abab981e',
   apiSecret : '7ccaec2093e33cded282ec7bc81c6fca',
   cache     : cache
-});
+ });
 
  // Отправляет +1 к count трека 
+
 function setCount(id_track,id_user){
 	$.ajax({
 		type:"POST",
@@ -41,7 +41,7 @@ function getSettings(){
 		data:"action=get_settings&id_user="+_userID,
 		success:function(data){
 			$("#volume-slider").slider("value",data);
-			// audioPlayer.setVolume(data);
+			// aP.setVolume(data);
 		}
 	})
  }
@@ -126,16 +126,14 @@ function getStars(id_track,id_user){
 		}
 	})
  }
- // Обновляем  ИНФУ на ВСЕЙ странице
+
+// Обновляем  ИНФУ на ВСЕЙ странице
 pl.updateInfo = function(){
-	var info = audioPlayer.getInfo();
-	var artist = info.artist;
-	var title = info.title;
-	$("#audio-info").html("<b>"+artist+" - "+title+"</b>");
+	$("#audio-info").html("<b>"+aP.artist+" - "+aP.title+"</b>");
 		$.ajax({
 		type:"POST",
 		url :"query.php",
-		data:"action=get_count&id_user="+_userID+"&id_track="+audioPlayer.currentID,
+		data:"action=get_count&id_user="+_userID+"&id_track="+aP.currentID,
 		success:function(data){
 			// l(data);
 			var myCount = allCount = 0;
@@ -150,9 +148,10 @@ pl.updateInfo = function(){
 	})
 	
  }
+
  //формирует строку с треком + отрисовывает рейтинг
  // Отрисовка добавления трека к плейлисту
-function addtoTable(id_track,artist,title,filename,cover,num,genre){
+function addtoTable(id_track, artist, album, title, filename, cover, year, genre){
 	var rating_div = "<div id='rating"+id_track+"'>";
 	var i = 0;
 	var id_star = 0;
@@ -163,32 +162,46 @@ function addtoTable(id_track,artist,title,filename,cover,num,genre){
 		rating_div += "<img class='small-image part2' id='star"+id_star+"' src='img/black_star_part2.png' />";
 	}
 	rating_div += "</div>";
-	$("#track-table").append($("<tr><td>"+num+".</td><td><a href='#' genre='"+genre+"' id_track='"+id_track+"' num='"+(num-1)+"' artist='"+
-		artist+"' cover='"+cover+"' filename='"+filename+"' class='mp3a'>"+
-		title+"</a></td><td>"+rating_div+"</td><td><img class='minus-mp3'src='img/minus.png'/></td></tr>"));
+	item = "<tr><td>"+num+".</td><td><a href='#' id_track='"+id_track+
+											     "' artist='"+artist+
+												    "' num='"+num+
+											      "' album='"+album+
+											   "' filename='"+filename+
+											      "' cover='"+cover+
+										 "' class='mp3a'>"+title+"</a></td><td>"+rating_div+
+										 "</td><td><img class='minus-mp3'src='img/minus.png'/></td></tr>";
+	$("#track-table").append( $(item) );
 
 	getStars(id_track,_userID);
  }
+function addTo(id_track, artist, album, title, filename, cover, year, genre){
+	aP.addToPlaylist(id_track, artist, album, title, filename, cover, year, genre);
+	addtoTable(id_track, artist, album, title, filename, cover, year, genre);
+}
 // Очищаем плейлист
 pl.clearPlaylist = function(){
 	num = 1;
-	audioPlayer.clearPlaylist();
+	aP.clearPlaylist();
 	$("#track-table").html("<table id='track-table' class='table-scroll'><tbody></tbody></table>");
  }
-
+// Получаем имена плейлистлистов и заносим в список
 pl.getNamesPls = function(data){
-	// получаем JSON с данными name,id_track
+	// получаем JSON с данными name
 	var data_pls = JSON.parse(data);
-	l("PLS:");
+	l("Имена плейлистов с сервера:");
 	l(data_pls);
 	// визуальная часть
 	$("#playlists").html("");
-	for(var key in data_pls){
-		$("#playlists").append("<option class='opt-pls'>"+key+"</option>");
+	for (var i =0; i < data_pls.length; i++)
+	{
+		if(data_pls[i].social == 1)
+			$("#playlists").append("<option class='opt-pls'>*"+data_pls[i].name+"</option>");
+		else
+			$("#playlists").append("<option class='opt-pls'>"+data_pls[i].name+"</option>");
 	}
 	$("#playlists").selectmenu("refresh");
 
-	 }
+ }
 pl.loadPlaylist = function(name){
 	var data = "&name="+name+"&action=load_pls&";
 	// l(data);
@@ -207,7 +220,7 @@ pl.loadPlaylist = function(name){
 				//убираем лишнее из таблицы
 				$("#track-table").html("<table id='track-table'></table>");
 				for(var i=0; i < data_json.length; i++){
-					audioPlayer.addToPlaylist(data_json[i].id,data_json[i].filename,data_json[i].title);
+					aP.addToPlaylist(data_json[i].id,data_json[i].filename,data_json[i].title);
 					//Добавляем в таблицу
 				 	addtoTable(data_json[i].id,
 				 			   data_json[i].artist,
@@ -227,43 +240,51 @@ pl.loadPlaylist = function(name){
 	});
  }
 pl.playPause = function(elem){
-	switch(audioPlayer.playerState){
+	switch(aP.playerState){
 		case "pause":
-			audioPlayer.pause();
-			audioPlayer.playerState = "play";
+			aP.pause();
+			aP.playerState = "play";
 			$("#player-play").attr("src","img/play2.png");
 			console.log("vetka pause");
 			break;
 		case "play":
-			audioPlayer.play();
-			audioPlayer.playerState = "pause";
+			aP.play();
+			aP.playerState = "pause";
 			$("#player-play").attr("src","img/pause.png");
 			console.log("vetka play");
 			break;
 	}
  }
 pl.nextTrack = function(){
-	audioPlayer.nextTrack();
-	l(audioPlayer.playlist)
+	aP.nextTrack();
+	if(aP.track != 0)
+		num++;
+	else
+		num = 0;
+	// l(aP.playlist);
 	$("#pic-play").remove();
-	$("a[num|='"+audioPlayer.currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
+	$("a[num|='"+num+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
 	pl.updateInfo();
 	done = false;
  }
 pl.prevTrack = function(){
-	audioPlayer.prevTrack();
+	aP.prevTrack();
+	if(aP.track != 0)
+		num--;
+	else
+		num = 0;
 	$("#pic-play").remove();
-	$("a[num|='"+audioPlayer.currentTrack+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
+	$("a[num|='"+num+"']").before( $("<img id='pic-play' src='../img/play.png'/>") );
 	pl.updateInfo();
 	done = false;
  }
 //Cобытия плеера
 $( "#volume-slider" ).on( "slidestop", function( event, ui ) {
-	audioPlayer.currentVolume = $(this).slider("value");
+	aP.currentVolume = $(this).slider("value");
 	$.ajax({
 		type:"POST",
 		url :"query.php",
-		data:"action=set_settings&id_user="+_userID+"&volume="+audioPlayer.currentVolume,
+		data:"action=set_settings&id_user="+_userID+"&volume="+aP.currentVolume,
 		success:function(data){
 			l(data);
 			if( data == "true")
@@ -275,17 +296,17 @@ $( "#volume-slider" ).on( "slidestop", function( event, ui ) {
 } )
 
 $("#audio")[0].ontimeupdate = function(){
-	$("#audio-numbers").html(audioPlayer.updateNumbers());
-	var duration = Math.floor(audioPlayer.getDuration());
-	var currentTime = Math.floor(audioPlayer.getCurrentTime()); 
-	var roundtime = Math.round(duration / 2);
-	var info = audioPlayer.getInfo();
+	$("#audio-numbers").html(aP.updateNumbers());
+	var duration    = Math.floor(aP.getDuration());
+	var currentTime = Math.floor(aP.getCurrentTime()); 
+	var roundtime   = Math.round(duration / 2);
+	// var info = aP.getInfo();
 	// Прошла половина трека
 	if ( (currentTime >= roundtime ) && (done == false) ){
 		l("Round!");
 		// var user = $.trim($("#user_info").text());
 		done = true;
-		setCount( audioPlayer.currentID, _userID);
+		setCount( aP.id_track, _userID);
 	}
 	$("#audio-slider").slider("option","max",duration);
 	$("#audio-slider").slider("value",currentTime);
@@ -307,7 +328,7 @@ $(document).ready(function() {
 	$(document).on("click",".small-image",function(){
 		var star = 0;
 		var cur_id = $(this).parent("div").attr("id");
-		var id_track = audioPlayer.currentID;//cur_id.split("rating")[1];
+		var id_track = aP.currentID;//cur_id.split("rating")[1];
 		if( $(this).attr("id") == "star10" ){
 			$("#"+cur_id+" .part1").attr("src","img/yellow_star_part1.png");
 			$("#"+cur_id+" .part2").attr("src","img/yellow_star_part2.png");
@@ -382,7 +403,7 @@ $(document).ready(function() {
 				l(data);
 			}
 		});
-	});
+	 });
 	//Клик по #exit
 	$("#exit").click(function(){
 		window.location.href="exit.php";
@@ -391,11 +412,11 @@ $(document).ready(function() {
 	//обложка по умолчанию
 	$("#cover").attr("src","img/un_cover.png");
 	//Считываем плейлисты
-	// audioPlayer.getNamesPls(user, pl.getNamesPls);
+	aP.getNamesPls(_userID, pl.getNamesPls);
 	//Управление плеером ---------------------
 	$("#player-play").click(function(){
 		pl.playPause();
-		// audioPlayer.playPause();
+		// aP.playPause();
 	});
 	$("#player-next").click(function(){
 		pl.nextTrack();
@@ -410,9 +431,6 @@ $(document).ready(function() {
 	$("#button_del_playlist").click(function(){
 		$("#dialog-del-pls").html("Точно удалить этот плейлист?");
 		$("#dialog-del-pls").dialog("open");
-		// pl.deletePlaylist(currentNamePlaylist);
-		// l($("#playlists span.ui-selectmenu-text"));
-		// l("Playlist: "+currentNamePlaylist);
 	});
 	$("#dialog-del-pls").dialog({
 		autoOpen: false,
@@ -421,80 +439,111 @@ $(document).ready(function() {
 		buttons: [{
 			text: "Да, конечно!",
 			click: function(){
-				l(audioPlayer.currentNamePlaylist);
-				audioPlayer.deletePlaylist(user, audioPlayer.currentNamePlaylist, function(data){
-				if(data == "true")
-					showError("Плейлист удачно удален!");
-				else
-					showError("Какая-то ошибка :(");
+				// Получаем имя плейлиста из select'а 
+				currPls = $("#playlists").val();
+				// Если плейлист социальный, у него есть *
+				if( currPls.charAt(0) == '*')
+					currPls = currPls.substring(1, currPls.length);
+				// Запускаем удаление
+				aP.deletePlaylist(_userID, currPls, function(data){
+					if(data == "true")
+						showError("Плейлист удачно удален!");
+					else
+					{
+						l(data);
+						showError("Какая-то ошибка :(");
+					}
 				});		
 				$(this).dialog("close");	
-				audioPlayer.getNamesPls(user, pl.getNamesPls);			
+				aP.getNamesPls(_userID, pl.getNamesPls);			
 			}
-			},{
-				text: "Нет",
-				click: function(){
-					$( this ).dialog( "close" );
-				}
-			}]
+		},
+		{
+			text: "Нет",
+			click: function(){
+				$( this ).dialog( "close" );
+			}
+		}]
+	});
+	$("#button_add_folder").click(function()
+	{
+		$("#dialog-add-folder").dialog("open");
 	});
 	$("#button_new_playlist").click(function(){
-		l(audioPlayer.playlist);
 		$("#dialog-div").dialog("open");
-	});
-	$("#button_love").click(function(){
-		// l(currentID);
-		// l();
-		var user = $.trim($("#user_info").text());
-		$.ajax({
-			type:"POST",
-			url:"query.php",
-			data:"action=love_track&user="+user+"&id="+currentID,
-			success: function(data){
-				if(data != "false"){
-					// l(data)
-				}
-				else {
-					// l("false");
-				}
-			}
-		});
 	});
 	//Упаковка библиотеками
 	$("#playlists").selectmenu({width:135});
+	// Клик по плейлисту
 	$("#playlists").on("selectmenuselect", function(event, ui){
-		audioPlayer.loadPlaylist(user,ui.item.label, function(data){
-		audioPlayer.currentNamePlaylist = ui.item.label;
-		l("Current.PLS: "+audioPlayer.currentNamePlaylist)
-		l(data);
-		var data_json = JSON.parse(data);
-		l(data_json);
-		// операции с плейлистом
-		audioPlayer.playlist = [];
-		num = 1;
-		// //убираем лишнее из таблицы
-		$("#track-table").html("<table id='track-table'></table>");
-		for(var i=0; i < data_json.length; i++){
-			audioPlayer.playlist.push({"id":data_json[i].id,"title":data_json[i].title,"filename":data_json[i].filename,"cover":data_json[i].cover});
-			audioPlayer.currentCount++;
-			audioPlayer.addToPlaylist(data_json[i].id,data_json[i].filename,data_json[i].title);
-			addtoTable( data_json[i].id,
-						data_json[i].artist,
-						data_json[i].title,
-						data_json[i].filename,
-						data_json[i].cover,
-						num,
-						data_json[i].genre);
+		currPls = ui.item.label;
+		// Если плейлист социальный, у него есть *
+		if( currPls.charAt(0) == '*')
+			currPls = currPls.substring(1, currPls.length);
+		// запускаем загрузку
+		aP.loadPlaylist(_userID, currPls, function(data){
+			aP.currentNamePlaylist = currPls;
+			l(data);
+			var data_json = JSON.parse(data);
+
+			// операции с плейлистом
+			aP.playlist = [];
+			num = 1;
+			// //убираем лишнее из таблицы
+			$("#track-table").html("<table id='track-table'></table>"); 
+			// pl.clearPlaylist();
+			for(var i=0; i < data_json.length; i++){
+				if( data_json[i].filename != 0)
+				{
+					aP.playlist.push({"id":data_json[i].id,"title":data_json[i].title,"filename":data_json[i].filename,"cover":data_json[i].cover});
+					// aP.currentCount++;
+					aP.addToPlaylist(data_json[i].id_track,data_json[i].filename,data_json[i].title);
+					addtoTable( data_json[i].id_track,
+								data_json[i].artist,
+								data_json[i].title,
+								data_json[i].filename,
+								data_json[i].cover,
+								num,
+								data_json[i].genre );
 						// $("#track-table").append($("<tr><td>"+num+".</td><td><a href='#' num='"+(num-1)+"' artist='"+data_json[i].artist
 						// 	+"' cover='"+data_json[i].cover+"' filename='"+data_json[i].filename+"' class='mp3a'>"+data_json[i].title+"</a></td></tr>"));
-						num++; 
-		}
+					num++; 
+				}
+			}
 
 		});
-		// l(ui.item.label);
-		audioPlayer.currentNamePlaylist = ui.item.label;
+		
 	});
 	// -------- DIALOGS ----------
+	$("#dialog-add-folder").dialog({
+		autoOpen:false,
+		modal:true,
+		dialogClass: "no-close",
+		// minWidth:230,
+		// maxHeigth:150,
+		show: { effect: "fade", duration: 1000 },
+		title:"Добавить каталог в коллекцию",
+		buttons: [{
+			text: "Ok",
+			click: function(){
+				$.ajax({
+					type:"POST",
+					url :"query.php",
+					data:"action=add_folder&path="+$("#path").val(),
+					success:function(data){
+						l(data);
+						$(this).dialog("close");
+						showError("Папка добавлена!");
+
+					}
+				});
+			}},{
+				text: "Отмена",
+				click: function(){
+					$(this).dialog("close");
+				}
+		}]
+	});
 	$("#dialog-message").dialog({
 		autoOpen: false,
 		modal: true,
@@ -502,6 +551,7 @@ $(document).ready(function() {
 		title: "Ошибка",
 		buttons: [{ text: "Ok", click: function() { $( this ).dialog( "close" ); } } ] 
 	});
+	// Создание плейлиста
 	$("#dialog-div").dialog({
 		autoOpen:false,
 		modal:true,
@@ -513,31 +563,34 @@ $(document).ready(function() {
 		buttons: [{
 			text: "Ok",
 			click: function(){
-				audioPlayer.playlistExists(user,$("#name-pls").val(), function(data){
-				// l("stage1");
-				//Плейлиста с таким именем не существует, сохранянем
-				if(data == "false"){
-					// l("stage2");
-					// Сохраняем плейлист
-					audioPlayer.savePlaylist(user,$("#name-pls").val(),function(data){
-					l(data);
-					if(data == "true"){
-						// l("stage3");
-						// Закрываем диалог
-						$("#dialog-div").dialog("close");
-						showError("Плейлист упешно сохранен!");
-						// Обновляем панель с плейлистами, добавляя новый
-						audioPlayer.getNamesPls(user, pl.getNamesPls);
-					}
-					else
-						showError("Возникла ошибка при создании плейлиста!");
-					
-					});							
+				if(num != 1){
+					aP.playlistExists(_userID,$("#name-pls").val(), function(data){
+						l("Пытаемся сохранить плейлист!");
+						//Плейлиста с таким именем не существует, сохранянем
+						l(data);
+						if(data == "false"){
+							l("Плейлиста с таким названием нет, пытаемся создать");
+							// Сохраняем плейлист
+							aP.savePlaylist(_userID,$("#name-pls").val(),$("#social-pls:checked").val(),function(data){
+								l(data);
+								if(data == "true"){
+									// Закрываем диалог
+									$("#dialog-div").dialog("close");
+									showError("Плейлист успешно сохранен!");
+									// Обновляем панель с плейлистами, добавляя новый
+									aP.getNamesPls(_userID, pl.getNamesPls);
+								}
+								else
+									showError("Возникла ошибка при создании плейлиста!");	
+							});							
+						}
+						// Плейлист существует
+						else
+							showError("Такой плейлист уже существует!");	
+					});
 				}
-				// Плейлист существует
 				else
-					showError("Такой плейлист уже существует!");	
-				});
+					showError("Плейлист пуст!");
 			}
 		},{
 			text: "Отмена",
@@ -551,8 +604,7 @@ $(document).ready(function() {
 		value:0, 
 		min: 0,
 		slide: function(event, ui){
-			// l("ddddddddddffffffff");
-			audioPlayer.setcurrentTime(ui.value);
+			aP.setcurrentTime(ui.value);
 		}
 	});
 
@@ -562,7 +614,7 @@ $(document).ready(function() {
 		max:10,
 		change: function(event, ui){
 			// l(ui.value/10);
-			audioPlayer.setVolume(ui.value/10);
+			aP.setVolume(ui.value/10);
 		}
 	});
 	// ListBox'ы
@@ -610,8 +662,8 @@ $(document).ready(function() {
 	});
 	// Genre click
 	$(".genreClass .lbjs-item").on("click", function(){
-		audioPlayer.currentGenre = $(this).html();
-		var data = "action=get_artists&genre="+audioPlayer.currentGenre;
+		aP.currentGenre = $(this).html();
+		var data = "action=get_artists&genre="+aP.currentGenre;
 		$.ajax({
 			type: "POST",
 			url: "query.php",
@@ -635,8 +687,8 @@ $(document).ready(function() {
 	});
 	// Клик по артисту
 	$(document).on("click", ".artistClass .lbjs-item", function(){	
-		audioPlayer.currentArtist = encodeURIComponent($(this).html());
-		var data = "&action=get_album&artist="+audioPlayer.currentArtist;
+		aP.artist = encodeURIComponent($(this).html());
+		var data = "&action=get_album&artist="+aP.artist;
 		$.ajax({
 			type: 'POST',
 			url: 'query.php',
@@ -661,20 +713,29 @@ $(document).ready(function() {
 	});
 	// Клик по альбому
 	$(document).on("click", ".albumClass  .lbjs-item",  function() {
-		// var num = 0;
-		// l("CurrentArtist: "+audioPlayer.currentArtist);
-		audioPlayer.currentAlbum = $(this).attr("album");
-		var data = "&action=get_tracks&artist="+audioPlayer.currentArtist+"&album="+audioPlayer.currentAlbum;
+		aP.album = $(this).attr("album");
+		var data = "&action=get_tracks&artist="+aP.artist+"&album="+aP.album;
 		$.ajax({
 			type: 'POST',
 			url: 'query.php',
 			data: data,
 			success: function(data) {
 				if (data != "false"){
-					var data_json = JSON.parse(data);
+					l(data)
+					var json = JSON.parse(data);
+					// l(json)
 					$(".tracksClass .lbjs-list").html("");
-					for(var i=0; i < data_json.length; i++){
-						$(".tracksClass .lbjs-list").append( $("<div class='lbjs-item' genre='"+data_json[i].Genre+"' id_track='"+data_json[i].id_track+"' cover='"+data_json[i].Cover+"'  filename='"+data_json[i].Filename+"'>"+data_json[i].Title+"</div>") );
+					for(var i=0; i < json.length; i++){
+						item = "<div class='lbjs-item' id_track='"+json[i].id_track+
+													  "' artist='"+json[i].artist+
+													   "' album='"+json[i].album+
+													   "' cover='"+json[i].cover+
+													"' filename='"+json[i].filename+
+													    "' year='"+json[i].year+
+													   "' genre='"+json[i].genre+
+													 "'>"+json[i].title+"</div>" 
+						// $(".tracksClass .lbjs-list").append( $("<div class='lbjs-item' genre='"+data_json[i].Genre+"' artist='"+data_json[i].Artist+"' id_track='"+data_json[i].id_track+"' cover='"+data_json[i].Cover+"'  filename='"+data_json[i].Filename+"'>"+data_json[i].Title+"</div>") );
+						$(".tracksClass .lbjs-list").append( $(item) );
 					}
 				}
 				else 
@@ -684,34 +745,29 @@ $(document).ready(function() {
 	});
 	// Двойной клик, выводит все треки альбома в плейлист
 	$(document).on("dblclick", ".albumClass .lbjs-item", function(){
-		audioPlayer.currentAlbum = $(this).attr("album");
-		data = "&action=get_tracks&artist="+audioPlayer.currentArtist+"&album="+audioPlayer.currentAlbum;
+		aP.album = $(this).attr("album");
+		data = "&action=get_tracks&artist="+aP.artist+"&album="+aP.album;
 		$.ajax({
 			type: 'POST',
 			url: 'query.php',
 			data: data,
 			success: function(data) {
 				if (data != "false"){
-					l("albums:");
-					l(data_json);
-					var data_json = JSON.parse(data);
+					var json = JSON.parse(data);
 					$(".tracksClass .lbjs-list").html("");
-					for(var i=0; i < data_json.length; i++)
+					for(var i=0; i < json.length; i++)
 					{
-						// Добавляем треки в листБокс для треков
-						$(".tracksClass .lbjs-list").append( $("<div class='lbjs-item' genre='"+data_json[i].Genre
-							+"' id_track='"+data_json[i].id_track+"' cover='"+data_json[i].Cover+"'  filename='"
-							+data_json[i].Filename+"'>"+data_json[i].Title+"</div>") );
-						// Добавляем треки в плейлист							
-						audioPlayer.addToPlaylist(data_json[i].id_track,data_json[i].Filename,data_json[i].Title);
-						//Добавляем в таблицу
-						addtoTable( data_json[i].id_track,
-									data_json[i].Artist,
-									data_json[i].Title,
-									data_json[i].Filename,
-									data_json[i].Cover,
-									num,
-									data_json[i].Genre);
+						item = "<div class='lbjs-item' id_track='"+json[i].id_track+
+													  "' artist='"+json[i].artist+
+													   "' album='"+aP.album+
+												    "' filename='"+json[i].filename+
+												       "' cover='"+json[i].cover+
+												        "' year='"+json[i].year+
+												       "' genre='"+json[i].genre+
+												              "'>"+json[i].title+"</div>";
+						$(".tracksClass .lbjs-list").append( $(item) );
+
+						addTo(json[i].id_track,json[i].artist,aP.album,json[i].title,json[i].filename,json[i].cover,json[i].year,json[i].genre);
 						num++;
 					}
 				}
@@ -723,18 +779,18 @@ $(document).ready(function() {
 	})
 	//Клик по треку в листбоксе->добавляем в таблицу ниже(плейлист)
 	$(document).on("click", ".tracksClass .lbjs-item", function() {
+
 		//Получаем трек, по которому кликнули
-		var title = $(this).html();
-		var filename = $(this).attr("filename");
-		var cover = $(this).attr("cover");
-		var genre  = $(this).attr("genre");
-		var id_track = $(this).attr("id_track");
-		// операции с плейлистом
-		audioPlayer.addToPlaylist(id_track,filename,title);
-		//Добавляем в таблицу
-		addtoTable(id_track,audioPlayer.currentArtist,title,filename,cover,num,genre);
-		audioPlayer.setCurrents(id_track,audioPlayer.currentArtist,"",title,genre,filename,cover);
-		num++; 
+		id_track = $(this).attr("id_track");
+		artist = $(this).attr("artist");
+		album = $(this).attr("album");
+		title    = $(this).html();
+		filename = $(this).attr("filename");
+		cover = $(this).attr("cover");
+		year = $(this).attr("year");
+		genre = $(this).attr("genre");
+		addTo(id_track, artist, album, title, filename, cover, year, genre);
+		num++;
 	});
 	//Клик по трэку, ИГРАЕМ!!
 	$(document).on("click", ".mp3a", function(){
@@ -745,19 +801,22 @@ $(document).ready(function() {
 		//вешаем новую
 		$(this).before($("<img id='pic-play' src='../img/play.png'/>"));
 		//получаем инфу о файле
-		var id =     $(this).attr("id_track");
-		var artist = $(this).attr("artist");
-		var title =  $(this).text();
-		var genre =  $(this).attr("genre");
-		var fname =  $(this).attr("filename");
-		var cover = $(this).attr("cover");
+		id_track = $(this).attr("id_track");
+		artist   = $(this).attr("artist");
+		album    = $(this).attr("album");
+		title    = $(this).html();
+		filename = $(this).attr("filename");
+		cover    = $(this).attr("cover");
+		year     = $(this).attr("year");
+		genre    = $(this).attr("genre");
 		//чтобы достать трек из логического плейлиста
-		currentNum = $(this).attr("num");
-		num = $(this).attr("num");
+		num      = $(this).attr("num");
 		//ставим обложку
 		$("#cover").attr("src",cover);
-		audioPlayer.setCurrents(id,artist,"",title,genre,fname,cover);
-		audioPlayer.playTrack(fname,currentNum);
+		aP.setCurrents(id_track, artist, album, title, filename, cover, year, genre);
+		aP.track = num;
+		aP.track--;
+		aP.playTrack();
 		//обновить player-info
 		pl.updateInfo();
 		//чтобы обнулить аяксовый запрос на inc_count

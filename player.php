@@ -77,12 +77,12 @@
 		<img src="img/new_playlist.png" id="button_new_playlist" class="mybutton" />
 		<img src="img/new_list.png" id="button_new_list" class="mybutton" />
 		<img src="img/del_list.png" id="button_del_playlist" class="mybutton" />
+		<img src="img/folder.png" id="button_add_folder" class="mybutton" />
 		<!-- <button id="test_button">Test</button> -->
 		<div id="playlist-div">
 			<select id="playlists">
 			</select>
 		</div>
-		<img src="img/heart.png" id="button_love" class="mybutton"/>
 	</div>
 	<!-- //////////////////////////////////////////////// -->
 	<div id='tracks-div' class="mystyle">
@@ -97,9 +97,15 @@
 	<div id="track-info"></div>
 </div>
 </div>
-<div id="dialog-div"><input type="text" id="name-pls"></div>
+<div id="dialog-div">
+	<input type="text" id="name-pls"><br><br>
+	<input type="checkbox" id="social-pls">Социальный плейлист</input>
+</div>
 <div id="dialog-del-pls"></div>
 <div id="dialog-message"></div>
+<div id="dialog-add-folder">
+	<input type="text" id="path">
+</div>
 <script src="js/myJSplayer.js"></script>
 <script type="text/javascript" src="js/player.js"></script>
 </body>

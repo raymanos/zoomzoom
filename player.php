@@ -21,7 +21,7 @@
 		<div id="up-div">
 			<div id="audio-controls">
 				<img id="player-prev" src="img/prev.png" />
-				<img id="player-play" src="img/play2.png" />
+				<img id="player-play" src="img/play.png" />
 				<img id="player-next" src="img/next.png" />
 			</div>
 			<div id="audio-info" class="shadowtext">
@@ -70,7 +70,7 @@
 			<select id="albums-select"></select>
 			<select id="tracks-select"></select>
 		</div>
-		<div id="lastfm">Здесь будет Last.FM</div>
+		<div id="lastfm"></div>
 		<div id="lyrics">Здесь будут тексты песен</div>
 	</div>
 	<div id="buttons-div" class="mystyle">

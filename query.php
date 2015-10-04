@@ -149,7 +149,7 @@ if($_POST["action"] == "set_stars" ){
 if($_POST["action"] == "get_artists"){
 	$data = "";
 	$genre = $_POST["genre"];
-	$sql = "select distinct artist from music where genre = '$genre' order by artist";
+	$sql = "select distinct artist from music where genre = '$genre' order by artist desc";
 	$qr = mysql_query($sql) or die(mysql_error());
 	if(!$qr){
 		echo "false";
@@ -344,25 +344,4 @@ if($_POST["action"] == "get_tracks"){
 		echo $str;
 	}
  }
-if($_POST["action"] == "dataAudio"){
-	$id_track = $_POST["id_track"];
-	// echo "FUCK";
-	$sql = "select id,tracks,artist,albums,filename,cover,genre,year from music where id = $id_track";
-	$qr = mysql_query($sql) or die(mysql_error());
-	while($row = mysql_fetch_assoc($qr)){
-		$dataAudio["id_track"] = $row["id"];
-		$dataAudio["artist"]   = $row["artist"];
-		$dataAudio["tracks"]   = $row["tracks"];
-		$dataAudio["album"]    = $row["albums"];
-		$dataAudio["filename"] = $row["filename"];
-		$dataAudio["cover"]    = $row["cover"];
-		$dataAudio["genre"]    = $row["genre"];
-		$dataAudio["year"]     = $row["year"];
-	}
-	// echo "RETURN RESULT";
-	// print_r($dataAudio);
-	echo json_encode($dataAudio);
-}
-	
-
 ?>

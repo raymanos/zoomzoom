@@ -142,14 +142,14 @@ body{
 #panel-right{
 	width: 210px;
 	/*width: 25%;*/
-	height: 400px;
+	height: 456px;
 	float: left;
 }
 #cover{
 	width: 200px;
 	height: 188px;
 	margin: 4px;
-	border-radius: 8px;
+	/*border-radius: 8px;*/
 }
 #playlist-div{
 	width: 142px;

@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="css/listbox.css" media="screen">
  	<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 	<link rel="stylesheet" href="css/style.css" media="screen">
+	<link rel="stylesheet" href="css/lastfm.css" media="screen">
 	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>
 <body>
@@ -70,7 +71,15 @@
 			<select id="albums-select"></select>
 			<select id="tracks-select"></select>
 		</div>
-		<div id="lastfm"></div>
+		<div id="lastfm">
+			<div id="lastfm-img-div">
+				<img id="lastfm-img" src=""></img>
+			</div>
+			<div id="lastfm-bio-div"></div>
+			<div id="lastfm-tags"></div>
+			<div id="lastfm-similar-div"></div>
+			
+		</div>
 		<div id="lyrics">Здесь будут тексты песен</div>
 	</div>
 	<div id="buttons-div" class="mystyle">

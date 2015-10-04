@@ -20,14 +20,33 @@ var lastfm = new LastFM({
   apiSecret : '7ccaec2093e33cded282ec7bc81c6fca',
   cache     : cache
  });
-/* Load some artist info. */
-lastfm.artist.getInfo({artist: 'The xx'}, {success: function(data){
-	l(data);
-  /* Use data. */
-}, error: function(code, message){
-  /* Show error message. */
-}});
- // Отправляет +1 к count трека 
+// Работа с Last.FM
+pl.lastfm = function(artist){
+	lastfm.artist.getInfo({artist: artist,lang: 'ru'},{
+		success: function(data){
+			// Очистка предыдущих данных
+			// $("#lastfm-img-div").html("");
+			$("#lastfm-bio-div").html("");
+			$("#lastfm-tags").html("");
+			$("#lastfm-similar-div").html("");
+			// Заполнение новыми данными
+			$("#lastfm-artist").html(data.artist.name);
+			$("#lastfm-img").attr("src",data.artist.image[2]["#text"]);
+			$("#lastfm-bio-div").append(data.artist.bio.content);//.substring(43));
+			for(var i = 0; i < data.artist.tags.tag.length; i++){
+				if(i>0)
+					$("#lastfm-tags").append('<div class="tag"><img class="small-img" src="img/tag.png"></img>'+data.artist.tags.tag[i].name+'</div><br>');
+				else
+					$("#lastfm-tags").append('<div><img class="small-img" src="img/tag.png"></img>'+data.artist.tags.tag[i].name+'</div><br>');
+			}
+
+			for(var i = 0; i < data.artist.similar.artist.length; i++){
+				$("#lastfm-similar-div").append("<div class='similar-div'><img class='small-img' src='img/mic.png'/>"+data.artist.similar.artist[i].name+ "</div> ");
+			}
+		}});
+ 
+ }
+// Отправляет +1 к count трека
 function setCount(id_track,id_user){
 	$.ajax({
 		type:"POST",
@@ -133,6 +152,7 @@ function getStars(id_track,id_user){
  }
 // Обновляем  ИНФУ на ВСЕЙ странице
 pl.updateInfo = function(){
+	pl.lastfm(aP.artist);
 	$("#audio-info").html("<b>"+aP.artist+" - "+aP.title+"</b>");
 		$.ajax({
 		type:"POST",

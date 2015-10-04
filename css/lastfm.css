@@ -1,0 +1,44 @@
+#lastfm-img-div{
+	width: 200px;
+	height: 200px;
+	float: left;
+	margin-left: -20px;
+	margin-top: -10px;
+}
+#lastfm-img {
+    float:left; /* Выравнивание по левому краю */
+    margin: 7px 7px 7px 0; /* Отступы вокруг картинки */
+ }
+ #lastfm-bio-div{
+ 	font-size: 12px;
+ 	height: 250px;
+ 	overflow-y: scroll;
+ }
+ #lastfm-tags{
+ 	margin-top: -70px;
+ 	margin-left: -20px;
+ 	float: left;
+ 	width: 150px;
+ 	height: 150px;
+ 	font-size: 14px;
+ 	overflow-y: auto;
+ }
+ #lastfm-similar-div{
+ 	height: 50px;
+ 	font-size: 14px;
+ 	margin-left: 50px;
+ 	margin-top: 20px;
+ }
+ .tag{
+ 	margin-top: -20px;
+ }
+.small-img{
+	width: 20px;
+	height: 20px;
+}
+.similar-div{
+	/*float: left;*/
+	display: inline-block;
+	/*background-color: red;*/
+	/*margin-left: -100px;*/
+}
